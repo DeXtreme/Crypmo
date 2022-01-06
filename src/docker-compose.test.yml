@@ -1,0 +1,67 @@
+version: '3.8'
+
+services:
+  nginx:
+    container_name: nginx
+    build:
+      context: ./nginx
+      dockerfile: dockerfile.test
+    ports:
+      - "80:80"
+    depends_on:
+      - app
+      - api
+  
+  app:
+    container_name: app
+    build:
+      context: ./app
+      dockerfile: dockerfile.test
+    volumes:
+      - ./app/node_modules:/app/node_modules/
+    env_file:
+      - ./.env/app.test.env
+    depends_on:
+      - api
+
+  api:
+    container_name: api
+    build:
+      context: ./api
+      dockerfile: dockerfile.test
+    volumes:
+      - ./api:/api
+    env_file:
+      - ./.env/api.test.env
+      - ./.env/db.test.env
+    depends_on:
+      - db
+      - worker
+  
+  worker:
+    container_name: worker
+    build:
+      context: ./api
+      dockerfile: dockerfile.test
+    env_file:
+      - ./.env/api.test.env
+      - ./.env/db.test.env
+    command: celery -A crypmo worker -l INFO
+    depends_on:
+      - redis
+  
+  redis:
+    container_name: redis
+    image: redis:6.2-bullseye
+  
+
+  db:
+    container_name: db
+    image: postgres:14.1-bullseye
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    env_file:
+      - ./.env/db.test.env
+  
+volumes:
+  postgres_data:
