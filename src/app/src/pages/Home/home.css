@@ -1,0 +1,10 @@
+#hero {
+    @apply flex items-center h-screen px-16 py-10 bg-primary relative z-0;
+    background: url("./bg-pattern.svg") no-repeat ;
+    background-size: cover;
+}
+
+#hero::before {
+    content: " ";
+    @apply bg-gradient-to-br from-primary via-secondary to-transparent absolute top-0 left-0 opacity-40 -z-10 min-w-full min-h-full;
+}
