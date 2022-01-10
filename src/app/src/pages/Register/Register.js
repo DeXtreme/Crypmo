@@ -1,5 +1,5 @@
 import  Navbar from "../../layouts/Navbar/Navbar";
-import { RegisterForm } from "../../features/RegisterForm/RegisterForm";
+import RegisterForm from "../../features/RegisterForm/RegisterForm";
 
 export function Register(props){
     return (
