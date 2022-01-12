@@ -18,7 +18,7 @@ class AccountSerializerTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls) -> None:
-        user = User.objects.create_user("testuser",
+        user = User.objects.create_user("testuser@test.com",
                                         password="test")
         cls.test_account = Account.objects.create(user=user)
 
@@ -38,7 +38,13 @@ class AccountSerializerTestCase(TestCase):
     
 class RegisterSerializerTestCase(TestCase):
 
-    def test_register_serializer_valid(self):
+    @classmethod
+    def setUpTestData(cls) -> None:
+        user = User.objects.create_user("testuser@test.com",
+                                        password="test")
+        cls.test_account = Account.objects.create(user=user)
+
+    def test_valid_data(self):
         """ Test the registeration serializer 
             validation on valid data"""
     
@@ -51,7 +57,7 @@ class RegisterSerializerTestCase(TestCase):
         except ValidationError:
             self.fail()
     
-    def test_register_serializer_invalid_email(self):
+    def test_invalid_email(self):
         """ Test the registeration serializer 
             validation on invalid emails"""
     
@@ -61,8 +67,20 @@ class RegisterSerializerTestCase(TestCase):
         serializer = RegisterAccountSerializer(data=data)       
         self.assertRaises(ValidationError, 
                           lambda: serializer.is_valid(raise_exception=True))
+    
+    def test_existing_email(self):
+        """ Test the registeration serializer 
+            validation on already existing emails"""
+        
+        data = {"email": self.test_account.user.username,
+                "password": "Testuser1"}
+        
+        serializer = RegisterAccountSerializer(data=data)  
+        self.assertRaises(ValidationError, 
+            lambda: serializer.is_valid(raise_exception=True))
 
-    def test_register_serializer_invalid_password(self):
+
+    def test_invalid_passwords(self):
         """ Test the registeration serializer 
             validation on invalid passwords"""
         
@@ -85,7 +103,6 @@ class RegisterSerializerTestCase(TestCase):
         data = {"email": "testuser@gmail.com",
                 "password": "Testus1"}
         do_test(data)
-
 
 class AccountView(TestCase):
 

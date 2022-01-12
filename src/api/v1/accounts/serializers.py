@@ -22,6 +22,6 @@ class AccountSerializer(serializers.ModelSerializer):
         fields = ["id","username","balance"]
 
 class RegisterAccountSerializer(serializers.Serializer):
-    email = serializers.EmailField(validators=[
+    email = serializers.EmailField(source="username",validators=[
                 UniqueValidator(User.objects.all())])
     password = serializers.RegexField(r"(?=.*[A-Z])(?=.*[0-9])",min_length=8)

@@ -150,3 +150,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Celery
 CELERY_BROKER_URL = 'redis://redis'
+
+# Mail
+EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend' if DEBUG else ""

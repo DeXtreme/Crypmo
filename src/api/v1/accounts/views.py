@@ -46,7 +46,7 @@ class AccountView(GenericViewSet,
         serializer = self.get_serializer(data=request.data,)
         serializer.is_valid(raise_exception=True)
 
-        data = serializer.validated_data
+        data = serializer.data
 
         verify_id = urlsafe_b64encode(uuid4().bytes).decode("utf-8")
         print(verify_id, flush=True)
@@ -65,7 +65,7 @@ class AccountView(GenericViewSet,
         if data:
             user = User.objects.create_user(data["email"],password=data["password"])
             account = Account.objects.create(user=user)
-
+            cache.delete(verify_id)
             #TODO: add response message
             return Response(status=status.HTTP_201_CREATED)
         else:
