@@ -8,7 +8,7 @@ import { register } from './services'
 import { Link } from 'react-router-dom';
 
 function RegisterForm(props){
-    const [isVisible, setVisible] = useState(false);
+    const [isPasswordVisible, setPasswordVisible] = useState(false);
     const [isSuccess, setSuccess] = useState(false);
 
     const formik = useFormik({
@@ -30,16 +30,15 @@ function RegisterForm(props){
 
             if(result.success){
                 setSuccess(true);
-            }else if(result.errors){            
-                result.errors?.email ? setFieldError("email", result.errors?.email[0]) : ""
-                result.errors?.password ? setFieldError("password", result.errors?.password[0]): ""
+            }else if(result.errors){   
+                Object.keys(result.errors).map(x=> setFieldError(x, result.errors[x][0]))
             }
 
             setSubmitting(false);
         }
     })
 
-    const handleVisible = () => setVisible(prev => !prev)
+    const handleVisible = () => setPasswordVisible(prev => !prev)
 
     return (
         <div className={props?.className}>
@@ -67,14 +66,14 @@ function RegisterForm(props){
                 <div className="mb-16 w-11/12">
                     <p className="mb-2">Password</p>
                     <div className="relative">
-                        <input type={isVisible ? "text" : "password"} {...formik.getFieldProps("password")} 
+                        <input type={isPasswordVisible ? "text" : "password"} {...formik.getFieldProps("password")} 
                         className={`bg-secondary px-14 py-3.5 w-full rounded-lg
                         ${formik.errors.password && formik.touched.password && "ring-1 ring-red-600 rounded-lg accent-red-600"}
                         transition-all disabled:brightness-75`}
                         placeholder="Enter your password" required disabled={formik.isSubmitting}/>
                         
                         <FaLock className="text-accent absolute top-3.5 left-4 text-xl"/>
-                        {isVisible ? <FaEye onClick={handleVisible} className="text-gray-500 absolute top-3.5 right-4 text-xl cursor-pointer"/> :
+                        {isPasswordVisible ? <FaEye onClick={handleVisible} className="text-gray-500 absolute top-3.5 right-4 text-xl cursor-pointer"/> :
                             <FaEyeSlash onClick={handleVisible} className="text-gray-500 absolute top-3.5 right-4 text-xl cursor-pointer"/>}
                         
                         {formik.errors.password && formik.touched.password &&
