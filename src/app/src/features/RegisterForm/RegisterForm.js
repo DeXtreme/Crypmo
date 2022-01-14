@@ -4,11 +4,12 @@ import { useState } from 'react';
 import {object,string} from 'yup';
 import {FaEnvelope, FaLock, FaEyeSlash, FaEye, FaArrowRight, FaRegEnvelope} from 'react-icons/fa';
 
-import { doRegister } from './utils'
+import { register } from './services'
+import { Link } from 'react-router-dom';
 
 function RegisterForm(props){
     const [isVisible, setVisible] = useState(false);
-    const [isSubmitted, setSubmitted] = useState(false);
+    const [isSuccess, setSuccess] = useState(false);
 
     const formik = useFormik({
         initialValues : {
@@ -23,10 +24,18 @@ function RegisterForm(props){
                               .matches(/[0-9]/g,"Password should contain at least one number")
                               .required("Please enter your password")
         }),
-        onSubmit: async (values, {setSubmitting}) => {
-            let result = await doRegister({email:values.email,
-                                           password:values.password})
-            setSubmitted(result);
+        onSubmit: async (values, {setFieldError, setSubmitting}) => {
+            let result = await register({email:values.email,
+                                         password:values.password})
+
+            if(result.success){
+                setSuccess(true);
+            }else if(result.errors){            
+                result.errors?.email ? setFieldError("email", result.errors?.email[0]) : ""
+                result.errors?.password ? setFieldError("password", result.errors?.password[0]): ""
+            }
+
+            setSubmitting(false);
         }
     })
 
@@ -35,7 +44,7 @@ function RegisterForm(props){
     return (
         <div className={props?.className}>
            
-            {!isSubmitted ? <form className=" py-10 px-6 rounded-lg relative" onSubmit={formik.handleSubmit}>
+            {!isSuccess ? <form className=" py-10 px-6 rounded-lg relative" onSubmit={formik.handleSubmit}>
                 
                 <h1 className="font-medium text-4xl mb-2 text-accent">Create Your Account</h1>
                 <h2 className=" mb-8 text-lg">Register with your email</h2>
@@ -80,13 +89,13 @@ function RegisterForm(props){
                         </div>
                     </button>
                 </div>
-                <p>Already have an account? <a href="#" className="text-accent font-medium">Log In</a></p>
+                <p>Already have an account? <Link to="login" className="text-accent font-medium">Log In</Link></p>
             </form>:
             <div>
                 <h1 className="text-4xl font-medium"><FaRegEnvelope className="inline-block text-accent mr-5 text-6xl"/> Verify your account</h1>
                 <p className="mt-5">Congratulations, you're almost done. Before being able to use your account
                    you need to verify your account by clicking the link that been sent to your email address.</p>
-                <a className="text-accent mt-4 inline-block" href="#">Log In</a>
+                <Link className="text-accent mt-4 inline-block" to="login">Log In</Link>
             </div>}
         </div>
     );
