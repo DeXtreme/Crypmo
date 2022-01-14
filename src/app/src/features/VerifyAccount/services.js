@@ -1,14 +1,17 @@
-import { API_URL } from "../../constants";
+import { apiRequest } from "../../services";
 
 export async function verifyAccount(verify_id){
-    let response = await fetch(`${API_URL}/account/verify/${verify_id}`,
-                         {
-                          method:"GET",
-                          headers: {'Content-Type': 'application/json'}
-                        }).catch(e =>{
+    let response = await apiRequest(`account/verify/${verify_id}`,"GET")
+                        .catch(e =>{
                             console.debug(e);
-                            return false;
+                            return null;
                         })
-    
-    return response.status === 201;
+                    
+    let result = false;
+
+    if(response?.ok){
+        result = true;
+    }
+
+    return result;
 }
