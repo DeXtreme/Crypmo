@@ -1,6 +1,6 @@
 import { useParams } from 'react-router';
 import Navbar from '../../layouts/Navbar/Navbar';
-import VerifyAccount from '../../features/VerifyAccount/VerifyAccount';
+import VerifyAccount from '../../features/VerifyAccount';
 
 export function Verify(props){
     let params = useParams();

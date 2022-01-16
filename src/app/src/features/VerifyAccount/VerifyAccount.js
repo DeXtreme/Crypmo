@@ -1,15 +1,12 @@
 import PropTypes from 'prop-types';
 import { useEffect,useState } from "react";
-import Alert from "../../components/Alert/Alert";
+import Alert from "../../components/Alert";
 
 import { verifyAccount } from "./services";
 
-import { ACCOUNT_VERIFICATION_SUCCESS_HEADER,
-         ACCOUNT_VERIFICATION_SUCCESS_MESSAGE,
-         ACCOUNT_VERIFICATION_FAIL_HEADER,
-         ACCOUNT_VERIFICATION_FAIL_MESSAGE } from "./constants";
+import * as cts from "./constants";
 
-function Verify({verify_id}){
+function VerifyAccount({verify_id}){
     let [showAlert, setShowAlert] = useState(false);
     let [success, setSuccess] = useState(false);
     let [header, setHeader ] = useState(null);
@@ -17,8 +14,11 @@ function Verify({verify_id}){
 
     useEffect(()=>{
         verifyAccount(verify_id).then(result =>{
-            setHeader(result ? ACCOUNT_VERIFICATION_SUCCESS_HEADER: ACCOUNT_VERIFICATION_FAIL_HEADER);
-            setMessage(result ? ACCOUNT_VERIFICATION_SUCCESS_MESSAGE: ACCOUNT_VERIFICATION_FAIL_MESSAGE);
+            setHeader(result ? cts.ACCOUNT_VERIFICATION_SUCCESS_HEADER :
+                cts.ACCOUNT_VERIFICATION_FAIL_HEADER);
+            setMessage(result ? cts.ACCOUNT_VERIFICATION_SUCCESS_MESSAGE :
+                 cts.ACCOUNT_VERIFICATION_FAIL_MESSAGE);
+
             setSuccess(result);
             setShowAlert(true);
         })
@@ -35,8 +35,8 @@ function Verify({verify_id}){
     )
 }
 
-Verify.propTypes = {
+VerifyAccount.propTypes = {
     verify_id: PropTypes.string
 }
 
-export default Verify;
+export default VerifyAccount;

@@ -7,6 +7,8 @@ import {FaEnvelope, FaLock, FaEyeSlash, FaEye, FaArrowRight, FaRegEnvelope} from
 import { register } from './services'
 import { Link } from 'react-router-dom';
 
+import * as cts from './constants';
+
 function RegisterForm(props){
     const [isPasswordVisible, setPasswordVisible] = useState(false);
     const [isSuccess, setSuccess] = useState(false);
@@ -17,12 +19,12 @@ function RegisterForm(props){
             password: ""
         },
         validationSchema: object({
-            email: string().email("Please enter a valid email address")
-                           .required("Please enter your email address"),
-            password: string().min(8,"Password should be 8 characters or longer")
-                              .matches(/[A-Z]/g,"Password should contain at least one uppercase letter")
-                              .matches(/[0-9]/g,"Password should contain at least one number")
-                              .required("Please enter your password")
+            email: string().email(cts.INVALID_EMAIL_MESSAGE)
+                           .required(cts.EMAIL_REQUIRED_MESSAGE),
+            password: string().min(8,cts.INVALID_PASSOWORD_LENGTH_MESSAGE)
+                              .matches(/[A-Z]/g,cts.INVALID_PASSWORD_UPPERCASE_MESSAGE)
+                              .matches(/[0-9]/g,cts.INVALID_PASSWORD_NUMBER_MESSAGE)
+                              .required(cts.PASSWORD_REQUIRED_MESSAGE)
         }),
         onSubmit: async (values, {setFieldError, setSubmitting}) => {
             let result = await register({email:values.email,
