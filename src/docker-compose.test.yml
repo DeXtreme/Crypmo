@@ -18,7 +18,7 @@ services:
       context: ./app
       dockerfile: dockerfile.test
     volumes:
-      - ./app/node_modules:/app/node_modules/
+      - ./app:/app
     env_file:
       - ./.env/app.test.env
     depends_on:
@@ -46,6 +46,8 @@ services:
     env_file:
       - ./.env/api.test.env
       - ./.env/db.test.env
+    volumes:
+      - ./api:/api
     command: celery -A crypmo worker -l INFO
     depends_on:
       - redis
