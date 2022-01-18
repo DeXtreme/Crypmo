@@ -31,8 +31,10 @@ it('should validate email addresses', async ()=>{
     let email = container.querySelector("[name=email]")
     let button = container.querySelector("[type=submit]");
 
+    let email_valid = container.querySelector("#email-valid");
+
     userEvent.click(button);
-    
+
     await waitFor(() => {
         expect(email).toHaveClass("ring-1");
         expect(screen.queryByText(
@@ -40,7 +42,12 @@ it('should validate email addresses', async ()=>{
             )).not.toBeNull();
     });
 
-    userEvent.type(email,"testuser");     
+    userEvent.type(email,"testuser");
+    
+    await waitFor(() => {
+        expect(email_valid).toHaveClass("text-gray-600");
+    })
+    
     userEvent.click(button);
     
     await waitFor(() => {
@@ -51,7 +58,12 @@ it('should validate email addresses', async ()=>{
     });
 
     userEvent.clear(email);
-    userEvent.type(email,"testuser@gmail.com");     
+    userEvent.type(email,"testuser@gmail.com");    
+    
+    await waitFor(() => {
+        expect(email_valid).toHaveClass("text-green-500");
+    })
+
     userEvent.click(button);
 
     await waitFor(() => {
@@ -65,7 +77,21 @@ it('should validate passwords', async ()=>{
     let password = container.querySelector("[name=password]")
     let button = container.querySelector("[type=submit]");
 
-    userEvent.type(password,"abcd");     
+    let pass_valid = container.querySelector("#pass-valid");
+    let min_chars = container.querySelector("#min-chars");
+    let has_upper = container.querySelector("#has-upper");
+    let has_number = container.querySelector("#has-number");
+
+
+    userEvent.type(password,"abcd");
+
+    await waitFor(()=>{
+        expect(pass_valid).toHaveClass("text-gray-600");
+        expect(min_chars).toHaveClass("text-gray-600");
+        expect(has_upper).toHaveClass("text-gray-600");
+        expect(has_number).toHaveClass("text-gray-600");
+    })
+
     userEvent.click(button);
     
     await waitFor(() => {
@@ -73,10 +99,20 @@ it('should validate passwords', async ()=>{
         expect(screen.queryByText(
             cts.INVALID_PASSOWORD_LENGTH_MESSAGE
             )).not.toBeNull();
+        
     });
 
     userEvent.clear(password);
-    userEvent.type(password,"abcdefgh");     
+    userEvent.type(password,"abcdefgh");  
+    
+    await waitFor(()=>{
+        expect(pass_valid).toHaveClass("text-gray-600");
+        expect(min_chars).toHaveClass("text-green-500");
+        expect(has_upper).toHaveClass("text-gray-600");
+        expect(has_number).toHaveClass("text-gray-600");
+    })
+
+
     userEvent.click(button);
     
     await waitFor(() => {
@@ -87,7 +123,15 @@ it('should validate passwords', async ()=>{
     });
 
     userEvent.clear(password);
-    userEvent.type(password,"Abcdefgh");     
+    userEvent.type(password,"Abcdefgh");    
+    
+    await waitFor(()=>{
+        expect(pass_valid).toHaveClass("text-gray-600");
+        expect(min_chars).toHaveClass("text-green-500");
+        expect(has_upper).toHaveClass("text-green-500");
+        expect(has_number).toHaveClass("text-gray-600");
+    })
+
     userEvent.click(button);
     
     await waitFor(() => {
@@ -98,11 +142,22 @@ it('should validate passwords', async ()=>{
     });
 
     userEvent.clear(password);
+    userEvent.type(password,"abcdefgh1");    
+    
+    await waitFor(()=>{
+        expect(pass_valid).toHaveClass("text-gray-600");
+        expect(min_chars).toHaveClass("text-green-500");
+        expect(has_upper).toHaveClass("text-gray-600");
+        expect(has_number).toHaveClass("text-green-500");
+    })
+
+    userEvent.clear(password);
     userEvent.type(password,"Abcdefgh1");     
     userEvent.click(button);
     
     await waitFor(() => {
         expect(password).not.toHaveClass("ring-1");
+        expect(pass_valid).toHaveClass("text-green-500");
     });
 })
 

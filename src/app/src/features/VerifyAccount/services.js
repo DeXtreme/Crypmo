@@ -6,7 +6,7 @@ export async function verifyAccount(verify_id){
                             console.debug(e);
                             return null;
                         })
-                    
+       
     let result = false;
 
     if(response?.ok){
