@@ -13,6 +13,7 @@ module.exports = {
       colors: {
         primary: "#082032",
         secondary: '#2C394B',
+        tetiary: '#334756',
         accent: "#FF4C29",
       }
     },
