@@ -1,4 +1,5 @@
 import React from "react";
+import { Provider } from "react-redux";
 import { BrowserRouter as Router } from "react-router-dom";
 import {render, waitFor, screen} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -8,7 +9,11 @@ import { setupServer } from 'msw/node';
 
 import { API_URL } from "../../constants";
 import * as constants from './constants';
+import { store } from "../../store";
+import Alert from "../../components/Alert";
+
 import VerifyAccount from ".";
+
 
 
 const server = setupServer(
@@ -23,36 +28,41 @@ beforeAll(() => server.listen());
 afterEach(() => server.resetHandlers());
 afterAll(()=> server.close());
 
-it("should show a success message if token is valid", async () => {
-    render(<VerifyAccount />)
-    await waitFor(()=>{
-        expect(screen.queryByText(
-            constants.ACCOUNT_VERIFICATION_SUCCESS_HEADER
-        )).not.toBeNull();
+it("should render a success alert if token is valid", async () => {
+    render(<Provider store={store}>
+                <Alert />
+                <VerifyAccount />
+           </Provider>)
 
-        expect(screen.queryByText(
+    await waitFor(()=>{
+        expect(screen.getByText(
+            constants.ACCOUNT_VERIFICATION_SUCCESS_HEADER
+        )).toBeInTheDocument()
+        expect(screen.getByText(
             constants.ACCOUNT_VERIFICATION_SUCCESS_MESSAGE
-        )).not.toBeNull();
+        )).toBeInTheDocument()
     })
 })
 
-it("should show a failure message if token is invalid", async () => {
+it("should render a fail alert if token is invalid", async () => {
     server.use(
         rest.get(`${API_URL}/account/verify/*`, (req, res, ctx)=>{
             return res(ctx.status(500));
         })
     )
     
-    render(<VerifyAccount />)
+    render(<Provider store={store}>
+                <Alert />
+                <VerifyAccount />
+           </Provider>)
 
     await waitFor(()=>{
-        expect(screen.queryByText(
+        expect(screen.getByText(
             constants.ACCOUNT_VERIFICATION_FAIL_HEADER
-        )).not.toBeNull();
+        )).toBeInTheDocument();
 
-        expect(screen.queryByText(
+        expect(screen.getByText(
             constants.ACCOUNT_VERIFICATION_FAIL_MESSAGE
-        )).not.toBeNull();
+        )).toBeInTheDocument();
     })
 })
-

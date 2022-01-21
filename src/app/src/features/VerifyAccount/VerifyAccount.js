@@ -1,36 +1,33 @@
 import PropTypes from 'prop-types';
-import { useEffect,useState } from "react";
-import Alert from "../../components/Alert";
+import { useEffect} from "react";
+import { useSuccessAlert, useFailAlert } from '../../components/Alert';
 
 import { verifyAccount } from "./services";
 
 import * as cts from "./constants";
 
 function VerifyAccount({verify_id}){
-    let [showAlert, setShowAlert] = useState(false);
-    let [success, setSuccess] = useState(false);
-    let [header, setHeader ] = useState(null);
-    let [message, setMessage] = useState(null);
+    let showSuccess = useSuccessAlert();
+    let showFail = useFailAlert();
 
     useEffect(()=>{
         verifyAccount(verify_id).then(result =>{
-            setHeader(result ? cts.ACCOUNT_VERIFICATION_SUCCESS_HEADER :
-                cts.ACCOUNT_VERIFICATION_FAIL_HEADER);
-            setMessage(result ? cts.ACCOUNT_VERIFICATION_SUCCESS_MESSAGE :
-                 cts.ACCOUNT_VERIFICATION_FAIL_MESSAGE);
-
-            setSuccess(result);
-            setShowAlert(true);
+            if(result){
+                showSuccess(cts.ACCOUNT_VERIFICATION_SUCCESS_HEADER,
+                    cts.ACCOUNT_VERIFICATION_SUCCESS_MESSAGE);
+            }else{
+                showFail(cts.ACCOUNT_VERIFICATION_FAIL_HEADER,
+                    cts.ACCOUNT_VERIFICATION_FAIL_MESSAGE);
+            }
         })
-    }, [])
+    }, [verify_id, showSuccess, showFail])
 
-    let dismiss = () => setShowAlert(false);
 
     return (
         <>
-            {showAlert && 
+            {/*showAlert && 
             <Alert type={success ? Alert.SUCCESS : Alert.FAIL} 
-            header={header} message={message} dismiss={dismiss} />}
+            header={header} message={message} dismiss={dismiss} />*/}
         </>
     )
 }
