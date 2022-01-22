@@ -29,7 +29,8 @@ export function useInfoAlert(){
 export function useHideAlert(){
     let dispatch = useDispatch();
 
-    return (message)=>{
+    return (message) => {
         dispatch(alertSlice.actions.hideAlert({message}));
     };
 }
+

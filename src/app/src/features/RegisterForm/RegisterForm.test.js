@@ -1,4 +1,5 @@
 import React from "react";
+import { Provider } from 'react-redux';
 import { BrowserRouter as Router } from "react-router-dom";
 import {render, waitFor, screen} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -7,7 +8,7 @@ import { rest } from "msw";
 import { setupServer } from 'msw/node';
 
 import { API_URL } from "../../constants";
-
+import { store } from "../../store";
 import * as cts from './constants';
 import RegisterForm from ".";
 
@@ -24,7 +25,7 @@ beforeAll(() => server.listen())
 afterEach(() => server.resetHandlers())
 afterAll(() => server.close())
 
-beforeEach(()=> container = render(<Router><RegisterForm /></Router>).container)
+beforeEach(()=> container = render(<Provider store={store}><Router><RegisterForm /></Router></Provider>).container)
 
 it('should validate email addresses', async ()=>{
     

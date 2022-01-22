@@ -1,7 +1,8 @@
 import PropTypes from 'prop-types';
 import { useEffect} from "react";
-import { useSuccessAlert, useFailAlert } from '../../components/Alert';
 
+import { useSuccessAlert, useFailAlert} from '../../components/Alert';
+import { useAPI } from '../../hooks';
 import { verifyAccount } from "./services";
 
 import * as cts from "./constants";
@@ -9,9 +10,10 @@ import * as cts from "./constants";
 function VerifyAccount({verify_id}){
     let showSuccess = useSuccessAlert();
     let showFail = useFailAlert();
+    let api = useAPI();
 
     useEffect(()=>{
-        verifyAccount(verify_id).then(result =>{
+        api.get(`account/verify/${verify_id}`,verifyAccount).then(result =>{
             if(result){
                 showSuccess(cts.ACCOUNT_VERIFICATION_SUCCESS_HEADER,
                     cts.ACCOUNT_VERIFICATION_SUCCESS_MESSAGE);

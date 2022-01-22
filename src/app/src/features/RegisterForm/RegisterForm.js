@@ -3,9 +3,10 @@ import { useFormik } from 'formik';
 import { useState } from 'react';
 import {FaEnvelope, FaLock, FaEyeSlash,
     FaEye, FaArrowRight, FaRegEnvelope, FaCheckCircle} from 'react-icons/fa';
+import { Link } from 'react-router-dom';
 
 import { register } from './services'
-import { Link } from 'react-router-dom';
+import { useAPI } from '../../hooks';
 
 import * as cts from './constants';
 
@@ -20,6 +21,8 @@ function RegisterForm(props){
     const [hasUpper, setHasUpper] = useState(false);
     const [hasNumber, setHasNumber] = useState(false);
     const [hasMinChar, setHasMinChar] = useState(false);
+
+    const api = useAPI();
 
     const formik = useFormik({
         initialValues : {
@@ -75,9 +78,12 @@ function RegisterForm(props){
 
             return errors;
         },
+
         onSubmit: async (values, {setFieldError, setSubmitting}) => {
-            let result = await register({email: values.email,
-                                         password: values.password})
+            let result = await api.post("account",
+                                {email: values.email,password: values.password},
+                                register);
+            register()
 
             if(result.success){
                 setSuccess(true);
@@ -100,7 +106,7 @@ function RegisterForm(props){
                 <h2 className=" mb-8 text-lg">Register with your email</h2>
                 
                 <div className="mb-4">
-                    <label for="email" className="mb-2 inline-block">Email</label>
+                    <label htmlFor="email" className="mb-2 inline-block">Email</label>
                     <div className="relative">
                         <input id="email" type="email" {...formik.getFieldProps("email")}
                         className={`bg-secondary px-14 py-3.5 w-full rounded-lg
@@ -117,7 +123,7 @@ function RegisterForm(props){
                 </div>
                 
                 <div className="mb-16">
-                    <label for="password" className="mb-2 inline-block">Password</label>
+                    <label htmlFor="password" className="mb-2 inline-block">Password</label>
                     <div className="relative">
                         <input type={isPasswordVisible ? "text" : "password"} {...formik.getFieldProps("password")} 
                         className={`peer bg-secondary pl-14 pr-20 py-3.5 w-full rounded-lg
@@ -185,14 +191,3 @@ RegisterForm.propTypes = {
 }
 
 export default RegisterForm;
-
-
-/*
-validationSchema: object({
-    email: string().email(cts.INVALID_EMAIL_MESSAGE)
-                   .required(cts.EMAIL_REQUIRED_MESSAGE),
-    password: string().min(8,cts.INVALID_PASSOWORD_LENGTH_MESSAGE)
-                      .matches(/[A-Z]/g,cts.INVALID_PASSWORD_UPPERCASE_MESSAGE)
-                      .matches(/[0-9]/g,cts.INVALID_PASSWORD_NUMBER_MESSAGE)
-                      .required(cts.PASSWORD_REQUIRED_MESSAGE)
-})*/
