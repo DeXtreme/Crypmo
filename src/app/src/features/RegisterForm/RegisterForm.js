@@ -175,12 +175,12 @@ function RegisterForm(props){
                         </div>
                     </button>
                 </div>
-                <p>Already have an account? <Link to="login" className="text-accent font-medium">Log In</Link></p>
+                <p>Already have an account? <Link to="/login" className="text-accent font-medium">Log In</Link></p>
             </form>:
             <div>
                 <h1 className="text-4xl font-medium"><FaRegEnvelope className="inline-block text-accent mr-5 text-6xl"/>{cts.SUCCESS_HEADER}</h1>
                 <p className="mt-5">{cts.SUCCESS_MESSAGE}</p>
-                <Link className="text-accent mt-4 inline-block" to="login">Log In</Link>
+                <Link className="text-accent mt-4 inline-block" to="/login">Log In</Link>
             </div>}
         </div>
     );

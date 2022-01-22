@@ -1,5 +1,3 @@
-import { apiRequest } from "../../services";
-
 export async function register(response){
    
     let result = {

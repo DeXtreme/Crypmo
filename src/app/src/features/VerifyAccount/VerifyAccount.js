@@ -22,7 +22,7 @@ function VerifyAccount({verify_id}){
                     cts.ACCOUNT_VERIFICATION_FAIL_MESSAGE);
             }
         })
-    }, [verify_id, showSuccess, showFail])
+    }, [api,verify_id, showSuccess, showFail])
 
 
     return (
