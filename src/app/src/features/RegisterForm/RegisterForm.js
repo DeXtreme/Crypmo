@@ -115,7 +115,7 @@ function RegisterForm(props){
                         placeholder="Enter your email address" required disabled={formik.isSubmitting}/>
                         
                         <FaEnvelope className="text-accent absolute top-4 left-4 text-xl"/>
-                        <FaCheckCircle id="email-valid" className={`${isEmailValid ? "text-green-500":"text-gray-600"} 
+                        <FaCheckCircle data-testid="email-valid" className={`${isEmailValid ? "text-green-500":"text-gray-600"} 
                         absolute top-4 right-4 text-xl`}/>
                     </div>
                     {formik.errors.email && formik.touched.email && 
@@ -140,7 +140,7 @@ function RegisterForm(props){
                             right-12 text-xl cursor-pointer"/>
                         }
                         
-                        <FaCheckCircle id="pass-valid" className={`${isPasswordValid ? "text-green-500":"text-gray-600"}
+                        <FaCheckCircle data-testid="password-valid" className={`${isPasswordValid ? "text-green-500":"text-gray-600"}
                          absolute top-4 right-4 text-xl`} />
 
                         {formik.errors.password && formik.touched.password &&
@@ -149,17 +149,17 @@ function RegisterForm(props){
                         {!isPasswordValid && <ul className='bg-secondary text-white p-4 mt-1 rounded-md right-0 
                         absolute invisible peer-focus:visible'>
                             <li className='flex items-center mb-1'>
-                                <FaCheckCircle id="min-chars" className={`${hasMinChar? "text-green-500":"text-gray-600"} 
+                                <FaCheckCircle data-testid="min-chars" className={`${hasMinChar? "text-green-500":"text-gray-600"} 
                                 inline-block text-xl mr-2`}/> At least 8 characters
                             </li>
 
                             <li className='flex items-center mb-1'>
-                                <FaCheckCircle id="has-upper" className={`${hasUpper? "text-green-500":"text-gray-600"} 
+                                <FaCheckCircle data-testid="has-upper" className={`${hasUpper? "text-green-500":"text-gray-600"} 
                                 inline-block text-xl mr-2`}/> Has uppercase letters
                             </li>
 
                             <li className='flex items-center mb-1'>
-                                <FaCheckCircle id="has-number" className={`${hasNumber? "text-green-500":"text-gray-600"} 
+                                <FaCheckCircle data-testid="has-number" className={`${hasNumber? "text-green-500":"text-gray-600"} 
                                 inline-block text-xl mr-2`}/> Has numbers
                             </li>
                             

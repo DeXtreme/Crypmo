@@ -5,7 +5,9 @@ export function LogIn(props){
     return (
         <div>
             <Navbar fixed={false} showMenu={false}/>
-            <LogInForm />
+            <div className="flex justify-center items-center mt-20 px-6">
+                <LogInForm />
+            </div>
         </div>
     );
 }

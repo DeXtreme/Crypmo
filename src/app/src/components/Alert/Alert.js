@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { FaCheckCircle, FaExclamationCircle, 
     FaTimesCircle, FaTimes, FaExclamationTriangle } from 'react-icons/fa';
 import { useSelector } from 'react-redux';
@@ -12,7 +13,17 @@ function Alert(){
     let show = useSelector(state=> state.alert.show);
 
     let hideAlert = useHideAlert();
+    
+    useEffect(()=>{
+        const timer = setTimeout(()=>{
+            hideAlert(message);
+        },5000);
 
+        return ()=>{
+            clearTimeout(timer);
+        }
+    },[message, hideAlert]);
+    
     return (
         <>
             {show && 
@@ -21,22 +32,30 @@ function Alert(){
                     {type === cts.SUCCESS && 
                     <>
                         <div className='w-2 h-full bg-green-500 mr-4'></div>
-                        <FaCheckCircle data-testid="icon" className='text-green-500 text-2xl'/>
+                        <div>
+                            <FaCheckCircle data-testid="icon" className='text-green-500 text-2xl'/>
+                        </div>
                     </>}
                     {type === cts.FAIL &&
                     <>
                         <div className='w-2 h-full bg-red-500 mr-4'></div>
-                        <FaTimesCircle data-testid="icon" className='text-red-500 text-2xl'/>
+                        <div>
+                            <FaTimesCircle data-testid="icon" className='text-red-500 text-2xl'/>
+                        </div>
                     </>}
                     {type === cts.WARNING && 
                     <>
                         <div className='w-2 h-full bg-yellow-500 mr-4'></div>
-                        <FaExclamationTriangle data-testid="icon" className='text-yellow-500 text-2xl'/>
+                        <div>
+                            <FaExclamationTriangle data-testid="icon" className='text-yellow-500 text-2xl'/>
+                        </div>
                     </>}
                     {type === cts.INFO && 
                     <>
                         <div className='w-2 h-full bg-blue-500 mr-4'></div>
-                        <FaExclamationCircle data-testid="icon" className='text-blue-500 text-2xl'/>
+                        <div>
+                            <FaExclamationCircle data-testid="icon" className='text-blue-500 text-2xl'/>
+                        </div>
                     </>}
                 <div className='my-2.5 mx-5'>
                     <h1 className='text-sm font-medium'>{header}</h1>

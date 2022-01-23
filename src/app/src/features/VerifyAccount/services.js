@@ -1,5 +1,3 @@
-import { apiRequest } from "../../services";
-
 export async function verifyAccount(response){
 
     let result = false;
