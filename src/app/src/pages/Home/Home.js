@@ -11,7 +11,8 @@ export function Home(props){
                 <div id="hero">
                     <div className="text-center md:text-left">
                         <h1 className="text-5xl mb-10 md:text-6xl md:mb-3">Buy &amp; Sell Crypto In Seconds</h1>
-                        <h3 className="text-xl font-normal mb-10">Deposit and withdraw with mobile money</h3>
+                        <h3 className="text-xl font-normal mb-10 leading-tight">Deposit and withdraw with mobile money</h3>
+                        {/*change log to goto exchange after log in*/}
                         <div>
                             <Link to="register" className="z-10 bg-accent rounded-lg px-16 py-4 
                             hover:bg-white hover:text-accent transition-colors ">Register Now</Link>

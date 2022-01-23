@@ -1,41 +1,130 @@
 import React from "react";
-import {render, waitFor, screen} from '@testing-library/react'
+import { Provider } from 'react-redux';
+import {render, waitFor, screen, act} from '@testing-library/react'
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
+
+import { store } from '../../store';
+import { useSuccessAlert,
+         useFailAlert,
+         useInfoAlert,
+         useWarningAlert } from '.';
 
 import Alert from '.';
 
 
-it('should render the header and message', ()=> {
+let header = "header";
+let message = "message"
 
-    let header = "header";
-    let message = "message";
+it('should render the success alert box',async()=>{
 
-    render(<Alert header={header} message={message} />);
+    function TestUseSuccessAlertComponent(){
+        let showSuccess = useSuccessAlert();
+        showSuccess(header,message);
+    
+        return (
+            <></>
+        )
+    }
 
-    expect(screen.queryByText(header)).not.toBeNull();
-    expect(screen.queryByText(message)).not.toBeNull();
+    render(<Provider store={store}>
+                <Alert />
+                <TestUseSuccessAlertComponent />
+           </Provider>)
+
+    await waitFor(()=>{
+        expect(screen.getByTestId("icon")).toHaveClass("text-green-500");
+        expect(screen.getByText(header)).toBeInTheDocument();
+        expect(screen.getByText(message)).toBeInTheDocument();
+    });
 })
 
-it('should render the right icon', ()=>{
+
+it('should render the fail alert box', async()=>{
+
+    function TestUseFailAlertComponent(){
+        let showFail = useFailAlert();
+        showFail(header,message);
+        return (
+            <></>
+        )
+    }
     
-    let container = render(<Alert type={Alert.SUCCESS} />).container;
+    render(<Provider store={store}>
+                <Alert />
+                <TestUseFailAlertComponent />
+           </Provider>)
+
+    await waitFor(()=>{
+        expect(screen.getByTestId("icon")).toHaveClass("text-red-500");
+        expect(screen.getByText(header)).toBeInTheDocument();
+        expect(screen.getByText(message)).toBeInTheDocument();
+    });
+})
+
+it('should render the warning alert box', async()=>{
+
+    function TestUseWarningAlertComponent(){
+        let showWarning = useWarningAlert();
+        showWarning(header,message);
+        return (
+            <></>
+        )
+    }
     
-    let icon = container.querySelector("svg.text-green-500");
-    expect(icon).not.toBeNull();
+    render(<Provider store={store}>
+                <Alert />
+                <TestUseWarningAlertComponent />
+           </Provider>)
 
-    container = render(<Alert type={Alert.WARNING} />).container;
+    await waitFor(()=>{
+        expect(screen.getByTestId("icon")).toHaveClass("text-yellow-500");
+        expect(screen.getByText(header)).toBeInTheDocument();
+        expect(screen.getByText(message)).toBeInTheDocument();
+    });
+})
 
-    icon = container.querySelector("svg.text-yellow-500");
-    expect(icon).not.toBeNull();
+it('should render the info alert box', async()=>{
 
-    container = render(<Alert type={Alert.FAIL} />).container;
+    function TestUseInfoAlertComponent(){
+        let showInfo = useInfoAlert();
+        showInfo(header,message);
+        return (
+            <></>
+        )
+    }
+    
+    render(<Provider store={store}>
+                <Alert />
+                <TestUseInfoAlertComponent />
+           </Provider>)
 
-    icon = container.querySelector("svg.text-red-500");
-    expect(icon).not.toBeNull();
+    await waitFor(()=>{
+        expect(screen.getByTestId("icon")).toHaveClass("text-blue-500");
+        expect(screen.getByText(header)).toBeInTheDocument();
+        expect(screen.getByText(message)).toBeInTheDocument();
+    });
+})
 
-    container = render(<Alert type={Alert.INFO} />).container;
+it('should dimiss alert box when dismiss is clicked', async()=>{
 
-    icon = container.querySelector("svg.text-blue-500");
-    expect(icon).not.toBeNull();
+    function TestUseInfoAlertComponent(){
+        let showInfo = useInfoAlert();
+        showInfo(header,message);
+        return (
+            <></>
+        )
+    }
+    
+    render(<Provider store={store}>
+                <Alert />
+                <TestUseInfoAlertComponent />
+           </Provider>)
+
+    let dismiss = await screen.findByTestId("dismiss");
+    userEvent.click(dismiss);
+        
+    await waitFor(()=>{
+        expect(screen.queryByText(header)).not.toBeInTheDocument();
+    });
 })

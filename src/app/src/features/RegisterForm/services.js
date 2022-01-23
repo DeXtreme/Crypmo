@@ -1,15 +1,5 @@
-import { apiRequest } from "../../services";
-
-export async function register({email, password}){
+export async function register(response){
    
-    const data = {email: email, password: password};
-
-    let response = await apiRequest("account/", "POST", data)
-                            .catch(e => {
-                                console.debug(e);
-                                return null;
-                            });
-    
     let result = {
         success: false
     }
