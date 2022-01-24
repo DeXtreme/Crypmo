@@ -1,7 +1,7 @@
 import  Navbar from "../../layouts/Navbar/Navbar";
 import RegisterForm from "../../features/RegisterForm";
 
-export function Register(props){
+export default function Register(props){
     return (
         <>
             <Navbar showMenu={false} fixed={false}/>

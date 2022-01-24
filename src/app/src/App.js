@@ -1,9 +1,9 @@
 import { Routes,Route,BrowserRouter as Router } from 'react-router-dom';
 import Alert from './components/Alert';
-import { Home } from './pages/Home/Home';
-import { Register } from './pages/Register/Register';
-import { LogIn } from './pages/LogIn/LogIn';
-import { Verify } from './pages/Verify/Verify';
+import Home from './pages/Home';
+import Register from './pages/Register';
+import LogIn from './pages/LogIn';
+import Verify from './pages/Verify';
 import './App.css';
 
 function App() {

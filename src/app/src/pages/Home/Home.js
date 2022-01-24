@@ -3,7 +3,7 @@ import Navbar from "../../layouts/Navbar/Navbar";
 
 import './home.css';
 
-export function Home(props){
+export default function Home(props){
     return (
         <>
             <Navbar />

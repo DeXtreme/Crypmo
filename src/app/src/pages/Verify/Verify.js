@@ -3,7 +3,7 @@ import Navbar from '../../layouts/Navbar/Navbar';
 import LogInForm from '../../features/LogInForm';
 import VerifyAccount from '../../features/VerifyAccount';
 
-export function Verify(props){
+export default function Verify(props){
     let params = useParams();
     let verify_id = params.verify_id;
     return (
