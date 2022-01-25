@@ -1,4 +1,5 @@
 import { Routes,Route,BrowserRouter as Router } from 'react-router-dom';
+import NotFound from './pages/NotFound';
 import Alert from './components/Alert';
 import Home from './pages/Home';
 import Register from './pages/Register';
@@ -17,6 +18,7 @@ function App() {
           <Route path="register" element={<Register/>} />
           <Route path="login" element={<LogIn />} />
           <Route path="verify/:verify_id" element={<Verify />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </Router>
     </>
