@@ -1,37 +1,30 @@
 import PropTypes from 'prop-types';
 import { useEffect} from "react";
-
-import { useSuccessAlert, useFailAlert} from '../../components/Alert';
+import { useAlert} from '../../components/Alert';
 import { useAPI } from '../../hooks';
-import { verifyAccount } from "./services";
+import { handleResponse } from "./utils";
 
 import * as cts from "./constants";
 
 function VerifyAccount({verify_id}){
-    let showSuccess = useSuccessAlert();
-    let showFail = useFailAlert();
+    let {showSuccessAlert,showFailAlert} = useAlert();
     let api = useAPI();
 
     useEffect(()=>{
-        api.get(`account/verify/${verify_id}`,verifyAccount).then(result =>{
+        (async ()=>{
+            let result = await api.get(`account/verify/${verify_id}`, handleResponse);   
             if(result){
-                showSuccess(cts.ACCOUNT_VERIFICATION_SUCCESS_HEADER,
+                showSuccessAlert(cts.ACCOUNT_VERIFICATION_SUCCESS_HEADER,
                     cts.ACCOUNT_VERIFICATION_SUCCESS_MESSAGE);
             }else{
-                showFail(cts.ACCOUNT_VERIFICATION_FAIL_HEADER,
+                showFailAlert(cts.ACCOUNT_VERIFICATION_FAIL_HEADER,
                     cts.ACCOUNT_VERIFICATION_FAIL_MESSAGE);
             }
-        })
-    }, [api,verify_id, showSuccess, showFail])
+        })();
+    }, [api,verify_id, showSuccessAlert, showFailAlert])
 
 
-    return (
-        <>
-            {/*showAlert && 
-            <Alert type={success ? Alert.SUCCESS : Alert.FAIL} 
-            header={header} message={message} dismiss={dismiss} />*/}
-        </>
-    )
+    return (<></>);
 }
 
 VerifyAccount.propTypes = {

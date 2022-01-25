@@ -5,7 +5,7 @@ import {FaEnvelope, FaLock, FaEyeSlash,
     FaEye, FaArrowRight, FaRegEnvelope, FaCheckCircle} from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 
-import { register } from './services'
+import { handleResponse } from './utils'
 import { useAPI } from '../../hooks';
 
 import * as cts from './constants';
@@ -82,9 +82,8 @@ function RegisterForm(props){
         onSubmit: async (values, {setFieldError, setSubmitting}) => {
             let result = await api.post("account",
                                 {email: values.email,password: values.password},
-                                register);
-            register()
-
+                                handleResponse);
+            
             if(result.success){
                 setSuccess(true);
             }else if(result.errors){   
@@ -171,7 +170,7 @@ function RegisterForm(props){
                     <button type="submit" className="bg-accent rounded-lg px-16 py-4 mb-4 transition-all hover:bg-white hover:text-accent
                     disabled:brightness-75 disabled:hover:bg-accent disabled:hover:text-white" disabled={formik.isSubmitting}>
                         <div className="flex items-center justify-center">
-                            Create account<FaArrowRight className="inline-block ml-3"/>
+                            Create account<FaArrowRight className="inline-block ml-4"/>
                         </div>
                     </button>
                 </div>

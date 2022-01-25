@@ -1,4 +1,7 @@
-import { useFailAlert, useHideAlert } from "./components/Alert";
+import { useDispatch, useSelector } from "react-redux";
+import { useAlert } from "./components/Alert";
+import accountSlice from './slices/account';
+
 import { API_URL, 
     NETWORK_ERROR_HEADER,
     NETWORK_ERROR_MESSAGE,
@@ -6,8 +9,8 @@ import { API_URL,
     SERVER_ERROR_MESSAGE } from "./constants";
 
 export function useAPI(){
-    let showFail = useFailAlert();
-    let hideAlert = useHideAlert();
+    let {showFailAlert, hideAlert} = useAlert();
+
 
     const request = async (url,method,body,callback) => {
         let requestInfo = {method, headers: {'Content-Type' : "application/json"}}
@@ -18,13 +21,13 @@ export function useAPI(){
             
         let response = await fetch(`${API_URL}/${url}`, requestInfo)
                             .catch(e =>{
-                                showFail(NETWORK_ERROR_HEADER, NETWORK_ERROR_MESSAGE)
+                                showFailAlert(NETWORK_ERROR_HEADER, NETWORK_ERROR_MESSAGE)
                                 return null;
                             });
 
         hideAlert("Please check your internet connection");
         if(response.statusCode === 500){
-            showFail(SERVER_ERROR_HEADER,SERVER_ERROR_MESSAGE);
+            showFailAlert(SERVER_ERROR_HEADER,SERVER_ERROR_MESSAGE);
             response = null;
         }
 
@@ -33,4 +36,19 @@ export function useAPI(){
 
     return {get : (url,callback) => request(url,"GET",null,callback),
             post: (url,body,callback) => request(url,"POST",body,callback)};
+}
+
+export function useAccount(){
+    let account = useSelector(state => state.account);
+    let dispatch = useDispatch();
+
+    return {
+        account,
+        login({username, access, refresh}){
+            dispatch(accountSlice.actions.login({username, access, refresh}))
+        },
+        logout(){
+            dispatch(accountSlice.actions.logout())
+        }
+    }
 }

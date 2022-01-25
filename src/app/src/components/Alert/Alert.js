@@ -2,7 +2,7 @@ import { useEffect} from 'react';
 import { FaCheckCircle, FaExclamationCircle, 
     FaTimesCircle, FaTimes, FaExclamationTriangle } from 'react-icons/fa';
 import { useSelector } from 'react-redux';
-import { useHideAlert } from './hooks';
+import { useAlert} from './hooks';
 import * as cts from './constants';
 
 function Alert(){
@@ -10,7 +10,7 @@ function Alert(){
     let header = useSelector(state => state.alert.header);
     let message = useSelector(state => state.alert.message);
     let show = useSelector(state=> state.alert.show);
-    let hideAlert = useHideAlert();
+    let {hideAlert} = useAlert();
 
     useEffect(()=>{
         const timer = setTimeout(()=>{

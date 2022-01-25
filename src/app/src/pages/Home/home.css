@@ -1,5 +1,5 @@
 #hero {
-    @apply flex items-center h-screen px-16 py-10 bg-primary relative z-0;
+    @apply flex items-center h-screen px-14 py-10 bg-primary relative z-0;
     background: url("./bg-pattern.svg") no-repeat ;
     background-size: cover;
 }

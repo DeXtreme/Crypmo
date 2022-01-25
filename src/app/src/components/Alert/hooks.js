@@ -2,35 +2,24 @@ import { useDispatch } from 'react-redux';
 import  alertSlice from './slices';
 import * as cts from './constants';
 
-function useShowAlert(type){
+export function useAlert(){
     let dispatch = useDispatch();
 
-    return (header,message) => {
-        dispatch(alertSlice.actions.showAlert({type,header,message}));
+    return {
+        showSuccessAlert(header,message){
+            dispatch(alertSlice.actions.showAlert({type:cts.SUCCESS,header,message}));
+        },
+        showInfoAlert(header,message){
+            dispatch(alertSlice.actions.showAlert({type:cts.INFO,header,message}));
+        },
+        showFailAlert(header,message){
+            dispatch(alertSlice.actions.showAlert({type:cts.FAIL,header,message}));
+        },
+        showWarningAlert(header,message){
+            dispatch(alertSlice.actions.showAlert({type:cts.WARNING,header,message}));
+        },
+        hideAlert(message){
+            dispatch(alertSlice.actions.hideAlert({message}));
+        }
     }
 }
-
-export function useSuccessAlert(){
-    return useShowAlert(cts.SUCCESS);
-}
-
-export function useFailAlert(){
-    return useShowAlert(cts.FAIL);
-}
-
-export function useWarningAlert(){
-    return useShowAlert(cts.WARNING);
-}
-
-export function useInfoAlert(){
-    return useShowAlert(cts.INFO);
-}
-
-export function useHideAlert(){
-    let dispatch = useDispatch();
-
-    return (message) => {
-        dispatch(alertSlice.actions.hideAlert({message}));
-    };
-}
-
