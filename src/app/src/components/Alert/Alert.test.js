@@ -5,10 +5,7 @@ import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
 
 import { store } from '../../store';
-import { useSuccessAlert,
-         useFailAlert,
-         useInfoAlert,
-         useWarningAlert } from '.';
+import { useAlert } from '.';
 
 import Alert from '.';
 
@@ -19,8 +16,8 @@ let message = "message"
 it('should render the success alert box',async()=>{
 
     function TestUseSuccessAlertComponent(){
-        let showSuccess = useSuccessAlert();
-        showSuccess(header,message);
+        let {showSuccessAlert} = useAlert();
+        showSuccessAlert(header,message);
     
         return (
             <></>
@@ -43,8 +40,8 @@ it('should render the success alert box',async()=>{
 it('should render the fail alert box', async()=>{
 
     function TestUseFailAlertComponent(){
-        let showFail = useFailAlert();
-        showFail(header,message);
+        let {showFailAlert} = useAlert();
+        showFailAlert(header,message);
         return (
             <></>
         )
@@ -65,8 +62,8 @@ it('should render the fail alert box', async()=>{
 it('should render the warning alert box', async()=>{
 
     function TestUseWarningAlertComponent(){
-        let showWarning = useWarningAlert();
-        showWarning(header,message);
+        let {showWarningAlert} = useAlert();
+        showWarningAlert(header,message);
         return (
             <></>
         )
@@ -87,8 +84,8 @@ it('should render the warning alert box', async()=>{
 it('should render the info alert box', async()=>{
 
     function TestUseInfoAlertComponent(){
-        let showInfo = useInfoAlert();
-        showInfo(header,message);
+        let {showInfoAlert} = useAlert();
+        showInfoAlert(header,message);
         return (
             <></>
         )
@@ -109,8 +106,8 @@ it('should render the info alert box', async()=>{
 it('should dimiss alert box when dismiss is clicked', async()=>{
 
     function TestUseInfoAlertComponent(){
-        let showInfo = useInfoAlert();
-        showInfo(header,message);
+        let {showInfoAlert} = useAlert();
+        showInfoAlert(header,message);
         return (
             <></>
         )
