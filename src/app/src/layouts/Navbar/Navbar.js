@@ -29,29 +29,32 @@ function Navbar({showMenu,fixed}){
                         <p className="font-bold text-accent hidden uppercase md:block">Crypmo</p>
                     </div>
                 </Link>
-                {showMenu && <>
+                {showMenu && 
+                <>
                     <div className="fixed left-0 bottom-0 w-full bg-primary py-3 border-t-2 border-secondary
-                    flex justify-around items-baseline text-gray-400">
+                    flex justify-around items-baseline text-gray-400 
+                    md:relative md:w-auto md:bg-transparent md:border-none md:text-white
+                    md:ml-16 md:gap-8">
                         <Link to="exchange/markets" className={`transition-colors hover:text-accent
                         ${(/\/exchange\/markets/ig.test(path)) && "text-accent"}`}>
-                            <RiBarChart2Fill className='m-auto text-2xl'/>
+                            <RiBarChart2Fill className='m-auto text-2xl md:hidden'/>
                             Markets
                         </Link>
                         <Link to="exchange/trade" className={`transition-colors hover:text-accent
                         ${(/\/exchange\/trade/ig.test(path)) && "text-accent"}`}>
-                            <MdSwapVert className='m-auto text-2xl' />
+                            <MdSwapVert className='m-auto text-2xl md:hidden' />
                             Trade
                         </Link>
                         <Link to="exchange/wallet" className={`transition-colors hover:text-accent
                         ${(/\/exchange\/wallet/ig.test(path)) && "text-accent"}`}>
-                            <FaWallet className='m-auto text-2xl' />
+                            <FaWallet className='m-auto text-2xl md:hidden' />
                             Wallet
                         </Link>
                     </div>
                     { account.isLoggedIn ?
                     <div className="ml-auto relative">
                         <button onClick={toggleDropdown}>
-                            <span>testuser@gmail.com</span>
+                            <span>{account.username}</span>
                             <FaChevronDown className='inline-block ml-2 text-accent'/>
                         </button>
                         <div className={`bg-secondary text-right px-4 absolute
@@ -74,8 +77,11 @@ function Navbar({showMenu,fixed}){
                         </div>
                     </div>:
                     <div className="flex items-center gap-6 ml-auto">
-                        <Link to="login"className="hover:text-accent">Log In</Link>
-                        <Link to="register" className="transition-colors bg-accent py-2 px-5 rounded-md text-sm hover:bg-white hover:text-accent">Register</Link>
+                        <Link to="login" className="hover:text-accent" data-testid="login">Log In</Link>
+                        <Link to="register" className="transition-colors bg-accent py-2 px-5 
+                        rounded-md text-sm hover:bg-white hover:text-accent" data-testid="register">
+                            Register
+                        </Link>
                     </div>}
                 </>}
             </div>

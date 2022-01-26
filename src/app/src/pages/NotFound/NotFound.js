@@ -6,10 +6,10 @@ import { Link } from 'react-router-dom';
 function NotFound(){
     return (
         <>
-        <Navbar showMenu={true}/>
+        <Navbar showMenu={false}/>
         <div className="h-screen flex flex-col items-center  justify-center">
             <h1 className="font-bold text-9xl text-accent mb-4">4<span><AiFillRobot className='inline-block'/></span>4</h1>
-            <p className='text-1xl mb-16'> The page you are looking for cannot be found</p>
+            <p className='text-lg font-medium mb-16'> The page you are looking for cannot be found</p>
             <div>
                 <Link to="/" className="bg-accent rounded-lg px-16 py-4 mb-4 transition-all 
                 hover:bg-white hover:text-accent ">
