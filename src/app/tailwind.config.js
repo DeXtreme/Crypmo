@@ -15,6 +15,21 @@ module.exports = {
         secondary: '#2C394B',
         tetiary: '#334756',
         accent: "#FF4C29",
+      },
+      animation: {
+        dropin: "dropin 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) 1 forwards",
+      },
+      keyframes: {
+        dropin: {
+          "0%": {
+            transform: "translateY(-20px)",
+            opacity: 0
+          },
+          "100%": {
+            opacity: 1,
+            transform: "translateY(30px)"
+          }
+        }
       }
     },
   },

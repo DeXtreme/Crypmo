@@ -1,19 +1,17 @@
-import { useEffect } from 'react';
+import { useEffect} from 'react';
 import { FaCheckCircle, FaExclamationCircle, 
     FaTimesCircle, FaTimes, FaExclamationTriangle } from 'react-icons/fa';
 import { useSelector } from 'react-redux';
-import { useHideAlert } from './hooks';
+import { useAlert} from './hooks';
 import * as cts from './constants';
-import './Alert.css';
 
 function Alert(){
     let type = useSelector(state => state.alert.type);
     let header = useSelector(state => state.alert.header);
     let message = useSelector(state => state.alert.message);
     let show = useSelector(state=> state.alert.show);
+    let {hideAlert} = useAlert();
 
-    let hideAlert = useHideAlert();
-    
     useEffect(()=>{
         const timer = setTimeout(()=>{
             hideAlert(message);
@@ -27,7 +25,7 @@ function Alert(){
     return (
         <>
             {show && 
-            <div className="alert" key={message}>
+            <div className="flex absolute w-full justify-center px-5 animate-dropin" key={message}>
                 <div className='flex items-center bg-secondary rounded-lg overflow-hidden max-w-screen-sm'>
                     {type === cts.SUCCESS && 
                     <>

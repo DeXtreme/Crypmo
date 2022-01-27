@@ -1,4 +1,4 @@
-export async function verifyAccount(response){
+export function handleResponse(response){
 
     let result = false;
 

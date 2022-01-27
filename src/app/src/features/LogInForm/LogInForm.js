@@ -2,17 +2,19 @@ import PropTypes from 'prop-types';
 import { useFormik } from 'formik';
 import { Link, useNavigate } from 'react-router-dom';
 import { FaEnvelope, FaLock} from 'react-icons/fa';
-import { useFailAlert } from '../../components/Alert';
-import { useAPI } from '../../hooks';
+import { useAlert } from '../../components/Alert';
+import { useAPI, useAccount } from '../../hooks';
 
-import { login } from './services';
+import { handleResponse } from './utils';
 import * as cts from './constants';
 
 
 function LogInForm({className}){
     let api = useAPI();
     let goTo = useNavigate();
-    let showFail = useFailAlert();
+    let {showFailAlert} = useAlert();
+    let {login} = useAccount();
+
     let formik = useFormik({
         initialValues : {
             username: '',
@@ -33,12 +35,13 @@ function LogInForm({className}){
             let result = await api.post("account/token",
                 {username:values.username,
                 password: values.password},
-                login);
+                handleResponse);
             
             if(result){
+                login(result);
                 goTo('/exchange');
             }else{
-                showFail(cts.INVALID_CREDENTIALS_HEADER,
+                showFailAlert(cts.INVALID_CREDENTIALS_HEADER,
                     cts.INVALID_CREDENTIALS_MESSAGE);
                 setErrors({username:"Invalid", password:"Invalid"});
                 setSubmitting(false);
@@ -49,7 +52,7 @@ function LogInForm({className}){
 
     return (
         <div className={className}>
-            <form className='text-center px-4' onSubmit={formik.handleSubmit}>
+            <form className='text-center' onSubmit={formik.handleSubmit}>
                 <h1 className='text-2xl mb-8 font-bold'>Log In</h1>
                 <div className='relative mb-4'>
                     <input className={`bg-secondary px-14 py-3.5 w-full rounded-lg
