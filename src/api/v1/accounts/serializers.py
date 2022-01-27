@@ -1,3 +1,4 @@
+import email
 from django.core import validators
 from django.contrib.auth.models import User
 from django.core.validators import RegexValidator
@@ -26,6 +27,14 @@ class RegisterAccountSerializer(serializers.Serializer):
     email = serializers.EmailField(source="username",validators=[
                 UniqueValidator(User.objects.all(),"This email address already exists")])
 
+    password = serializers.CharField(min_length=8, validators = [
+                RegexValidator(r"(?=.*[A-Z])","Password must contain at least one uppercase letter"),
+                RegexValidator(r"(?=.*[0-9])","Password must contain at least one number")])
+    
+class ResetEmailSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+
+class ResetPasswordSerializer(serializers.Serializer):
     password = serializers.CharField(min_length=8, validators = [
                 RegexValidator(r"(?=.*[A-Z])","Password must contain at least one uppercase letter"),
                 RegexValidator(r"(?=.*[0-9])","Password must contain at least one number")])

@@ -18,17 +18,19 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from .serializers import (
     AccountSerializer,
     AccountTokenObtainPairSerializer,
-    RegisterAccountSerializer
+    RegisterAccountSerializer,
+    ResetEmailSerializer,
+    ResetPasswordSerializer
 )
 
 class AccountView(GenericViewSet,
                   CreateModelMixin,
                   RetrieveModelMixin):
     
-    serializer = AccountSerializer
+    serializer_class = AccountSerializer
 
     def get_permissions(self):
-        if self.action == "create" or self.action == "verify":
+        if self.action == "create":
             return []
         return super().get_permissions()
     
@@ -49,7 +51,6 @@ class AccountView(GenericViewSet,
         data = serializer.data
 
         verify_id = urlsafe_b64encode(uuid4().bytes).decode("utf-8")
-        print(verify_id, flush=True)
         
         cache.add(verify_id, data, 3600)
         send_mail("Verification Link",verify_id,
@@ -58,7 +59,9 @@ class AccountView(GenericViewSet,
         headers = self.get_success_headers(serializer.data)
         return Response(headers=headers)
     
-    @action(methods=["GET"], detail=True)
+    @action(methods=["GET"], 
+            detail=True,
+            permission_classes=[])
     def verify(self, request, verify_id, *args, **kwargs):
         data = cache.get(verify_id)
 
@@ -71,6 +74,61 @@ class AccountView(GenericViewSet,
         else:
             #TODO: add response message
             return Response(status=status.HTTP_400_BAD_REQUEST)
+    
+    @action(methods=["POST"],
+            detail=False,
+            permission_classes=[],
+            authentication_classes=[],
+            serializer_class=ResetEmailSerializer)
+    def reset(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        email = serializer.validated_data["email"]
+
+        try:
+            user = User.objects.get(username=email)
+
+            reset_token = urlsafe_b64encode(uuid4().bytes).decode("utf-8")
+            cache.add(reset_token, user.username, 3600)
+            
+            send_mail("Reset Password Link", reset_token,
+                  "noreply@crypmo.com",[email])
+        except User.DoesNotExist:
+            pass
+
+        return Response(status=status.HTTP_200_OK)
+    
+    @action(methods=["POST"],
+            detail=False,
+            permission_classes=[],
+            authentication_classes=[],
+            serializer_class=ResetPasswordSerializer)
+    def reset_token(self, request, reset_token ,*args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        password = serializer.validated_data["password"]
+
+        email = cache.get(reset_token)
+        
+        if email:
+            user = User.objects.get(username=email)
+            user.set_password(password)
+            user.save()
+
+            cache.delete(reset_token)
+            return Response(status=status.HTTP_200_OK)
+        else:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+
+        
+
+
+
+    
 
     
 
