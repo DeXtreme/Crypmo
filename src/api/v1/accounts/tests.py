@@ -132,14 +132,14 @@ class AccountView(TestCase):
         
         
     def test_account_password_reset(self):
-        url = reverse("accounts:password-reset")
+        url = reverse("accounts:account-forgot")
 
         response = self.client.post(url, {"email":"testuser2@gmail.com"})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         
         reset_token =  mail.outbox[0].body
 
-        url = reverse("accounts:password-reset-token",args=[reset_token])
+        url = reverse("accounts:account-password-reset",args=[reset_token])
 
         response = self.client.post(url, {"password":"Testuser1"})
         self.assertEqual(response.status_code, status.HTTP_200_OK)

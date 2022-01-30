@@ -80,7 +80,7 @@ class AccountView(GenericViewSet,
             permission_classes=[],
             authentication_classes=[],
             serializer_class=ResetEmailSerializer)
-    def reset(self, request, *args, **kwargs):
+    def forgot(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
@@ -104,7 +104,7 @@ class AccountView(GenericViewSet,
             permission_classes=[],
             authentication_classes=[],
             serializer_class=ResetPasswordSerializer)
-    def reset_token(self, request, reset_token ,*args, **kwargs):
+    def reset(self, request, reset_token ,*args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
