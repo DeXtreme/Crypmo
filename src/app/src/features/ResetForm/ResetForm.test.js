@@ -11,12 +11,11 @@ import { rest } from 'msw';
 import { API_URL } from "../../constants";
 import * as cts from './constants';
 
+import Alert from "../../components/Alert";
+
 import ResetForm from '.';
 
-server = setupServer(
-    rest.post(`${API_URL}/account/reset`, (req, res, ctx)=>{
-        return res(ctx.status(200));
-    }),
+let server = setupServer(
     rest.post(`${API_URL}/account/reset/:token`, (req, res, ctx)=>{
         return res(ctx.status(200));
     }),
@@ -27,66 +26,43 @@ afterEach(()=> server.resetHandlers());
 afterAll(()=> server.close());
 
 
-it('should render the success message after entering an email',async ()=>{
-    render(
-        <Provider store={store}>
-            <Router>
-                <Routes>
-                    <Route path="/" element={<ResetForm />} />
-                </Routes>
-            </Router>
-        </Provider>
-    )
-
-    userEvent.type(screen.getByPlaceholderText(/Email/ig),"testuser@gmail.com");
-    userEvent.click(screen.getByText("Reset password"));
-    
-    await waitFor(()=>{
-        expect(screen.getByText(cts.RESET_EMAIL_SUCCESS_MESSAGE));
-    })
-
-})
-
 it('should render the password form after clicking the link',async ()=>{
     render(
         <Provider store={store}>
-            <Router initialEntries={"/reset/token"}>
+            <Router>
+                <Alert />
                 <Routes>
-                    <Route path="/reset/:token" element={<ResetForm />} />
+                    <Route path="/" element={<ResetForm token="abcd"/>} />
                 </Routes>
             </Router>
         </Provider>
     )
     
     await waitFor(()=>{
-        expect(screen.getByPlaceholderText(/Password/ig)).toBeInDocument();
+        expect(screen.getByPlaceholderText(/Password/ig)).toBeInTheDocument();
     })
 
 })
 
-it('should redirect and render an alert entering a valid password',async ()=>{
+it('should redirect and render an alert after entering a valid password',async ()=>{
     render(
         <Provider store={store}>
-            <Router initialEntries={"/reset/token"}>
+            <Router>
+                <Alert />
                 <Routes>
-                    <Route path="/reset/:token" element={<ResetForm />} />
-                    <Route path="/login" element={()=>{
-                        return(
-                            <div>
-                                Log in
-                            </div>
-                        )
-                    }}/>
+                    <Route path="/" element={<ResetForm token="abcd"/>} />
+                    <Route path="/login" element={<div>Log in</div>} />
                 </Routes>
             </Router>
         </Provider>
     )
 
-    userEvent.type(screen.getByPlaceholderText(/Password/ig),"Testuser1");
-    userEvent.click(screen.getByText("Change password"))
+    userEvent.type(screen.getByPlaceholderText(/Password/i),"Testuser1");
+    userEvent.click(screen.getByText(/Change password/i))
     
     await waitFor(()=>{
-        expect(screen.getByTestId("login")).toBeInDocument();
+        expect(screen.getByText(cts.SUCCESS_MESSAGE)).toBeInTheDocument();
+        expect(screen.getByText("Log in")).toBeInTheDocument();
     })
 
 })
