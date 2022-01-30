@@ -8,7 +8,7 @@ import { rest } from "msw";
 import { setupServer } from 'msw/node';
 
 import { API_URL } from "../../constants";
-import * as constants from './constants';
+import * as cts from './constants';
 import { store } from "../../store";
 import Alert from "../../components/Alert";
 
@@ -36,10 +36,10 @@ it("should render a success alert if token is valid", async () => {
 
     await waitFor(()=>{
         expect(screen.getByText(
-            constants.ACCOUNT_VERIFICATION_SUCCESS_HEADER
+            cts.SUCCESS_HEADER
         )).toBeInTheDocument()
         expect(screen.getByText(
-            constants.ACCOUNT_VERIFICATION_SUCCESS_MESSAGE
+            cts.SUCCESS_MESSAGE
         )).toBeInTheDocument()
     })
 })
@@ -58,11 +58,11 @@ it("should render a fail alert if token is invalid", async () => {
 
     await waitFor(()=>{
         expect(screen.getByText(
-            constants.ACCOUNT_VERIFICATION_FAIL_HEADER
+            cts.FAIL_HEADER
         )).toBeInTheDocument();
 
         expect(screen.getByText(
-            constants.ACCOUNT_VERIFICATION_FAIL_MESSAGE
+            cts.FAIL_MESSAGE
         )).toBeInTheDocument();
     })
 })

@@ -73,7 +73,7 @@ function LogInForm({className}){
                 <button data-testid="login" className="bg-accent rounded-lg px-16 py-4 transition-all hover:bg-white
                 hover:text-accent disabled:brightness-75 disabled:hover:bg-accent 
                 disabled:hover:text-white mb-4 w-full" type='submit'>Log In</button>
-                    <Link className='text-accent font-medium block text-left mb-12' to="/register">Forgot Password?</Link>
+                    <Link className='text-accent font-medium block text-left mb-12' to="/forgot">Forgot Password?</Link>
                     <p>Don't have account? <Link className='text-accent font-medium' to="/register">Register</Link></p>
                 
             </form>

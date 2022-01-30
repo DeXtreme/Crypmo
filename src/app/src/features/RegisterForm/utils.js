@@ -1,7 +1,8 @@
 export async function handleResponse(response){
    
     let result = {
-        success: false
+        success: false,
+        errors: null,
     }
 
     if(response?.ok){

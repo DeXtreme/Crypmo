@@ -14,11 +14,11 @@ function VerifyAccount({verify_id}){
         (async ()=>{
             let result = await api.get(`account/verify/${verify_id}`, handleResponse);   
             if(result){
-                showSuccessAlert(cts.ACCOUNT_VERIFICATION_SUCCESS_HEADER,
-                    cts.ACCOUNT_VERIFICATION_SUCCESS_MESSAGE);
+                showSuccessAlert(cts.SUCCESS_HEADER,
+                    cts.SUCCESS_MESSAGE);
             }else{
-                showFailAlert(cts.ACCOUNT_VERIFICATION_FAIL_HEADER,
-                    cts.ACCOUNT_VERIFICATION_FAIL_MESSAGE);
+                showFailAlert(cts.FAIL_HEADER,
+                    cts.FAIL_MESSAGE);
             }
         })();
     }, [api,verify_id, showSuccessAlert, showFailAlert])

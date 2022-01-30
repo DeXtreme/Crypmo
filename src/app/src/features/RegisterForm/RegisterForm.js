@@ -10,7 +10,7 @@ import { useAPI } from '../../hooks';
 
 import * as cts from './constants';
 
-function RegisterForm(props){
+function RegisterForm({className}){
     const [isPasswordVisible, setPasswordVisible] = useState(false);
     const [isSuccess, setSuccess] = useState(false);
 
@@ -97,9 +97,9 @@ function RegisterForm(props){
     const handleVisible = () => setPasswordVisible(prev => !prev)
 
     return (
-        <div className={props?.className}>
+        <div className={className}>
            
-            {!isSuccess ? <form className=" py-10 px-6 rounded-lg relative" onSubmit={formik.handleSubmit}>
+            {!isSuccess ? <form onSubmit={formik.handleSubmit}>
                 
                 <h1 className="font-medium text-4xl mb-2 text-accent">Create Your Account</h1>
                 <h2 className=" mb-8 text-lg">Register with your email</h2>
@@ -176,8 +176,12 @@ function RegisterForm(props){
                 </div>
                 <p>Already have an account? <Link to="/login" className="text-accent font-medium">Log In</Link></p>
             </form>:
-            <div>
-                <h1 className="text-4xl font-medium"><FaRegEnvelope className="inline-block text-accent mr-5 text-6xl"/>{cts.SUCCESS_HEADER}</h1>
+            <div className='text-center md:text-left'>
+                <div className='flex flex-col items-center md:flex-row md:items-center
+                md:justify-start md:gap-4'>
+                    <FaRegEnvelope className="text-accent text-6xl"/>
+                    <h1 className="text-3xl font-medium">{cts.SUCCESS_HEADER}</h1>
+                </div>
                 <p className="mt-5">{cts.SUCCESS_MESSAGE}</p>
                 <Link className="text-accent mt-4 inline-block" to="/login">Log In</Link>
             </div>}
