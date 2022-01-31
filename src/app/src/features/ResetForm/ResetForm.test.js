@@ -19,6 +19,9 @@ let server = setupServer(
     rest.post(`${API_URL}/account/reset/:token`, (req, res, ctx)=>{
         return res(ctx.status(200));
     }),
+    rest.get(`${API_URL}/account/reset/:token`, (req, res, ctx)=>{
+        return res(ctx.status(200));
+    }),
 )
 
 beforeAll(()=> server.listen());
@@ -43,6 +46,37 @@ it('should render the password form after clicking the link',async ()=>{
     })
 
 })
+
+it('should render an alert and redirect if token has expired',async ()=>{
+    server.use(
+        rest.get(`${API_URL}/account/reset/:token`, (req, res, ctx)=>{
+            return res(ctx.status(400));
+        }),
+    )
+
+    render(
+        <Provider store={store}>
+            <Router>
+                <Alert />
+                <Routes>
+                    <Route path="/" element={<ResetForm token="abcd"/>} />
+                    <Route path="forgot" element={
+                        <div>
+                            Forgot password
+                        </div>} />
+                </Routes>
+            </Router>
+        </Provider>
+    )
+    
+    await waitFor(()=>{
+        expect(screen.getByText(cts.LINK_EXPIRED_MESSAGE)).toBeInTheDocument();
+        expect(screen.getByText(/Forgot password/ig)).toBeInTheDocument();
+    })
+
+})
+
+
 
 it('should redirect and render an alert after entering a valid password',async ()=>{
     render(

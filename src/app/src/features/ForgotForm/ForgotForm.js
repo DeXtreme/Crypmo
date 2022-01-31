@@ -47,7 +47,7 @@ function ForgotForm({className}){
                 <form onSubmit={formik.handleSubmit}>
                     <h1 className='font-medium text-4xl mb-2 text-accent'>Forgot password?</h1>
                     <h2 className='mb-8 text-lg'>Reset your password with your email</h2>
-                    <div className="mb-4">
+                    <div className="mb-10">
                         <label htmlFor="email" className="mb-2 inline-block">Email</label>
                         <div className="relative">
                             <input id="email" type="email" {...formik.getFieldProps("email")}

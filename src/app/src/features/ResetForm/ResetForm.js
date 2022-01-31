@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import { useFormik } from 'formik';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAlert } from '../../components/Alert';
 import { useNavigate } from 'react-router';
 import { useAPI } from '../../hooks';
@@ -8,11 +8,11 @@ import { useAPI } from '../../hooks';
 import { FaLock, FaCheckCircle, FaEyeSlash, FaEye } from 'react-icons/fa';
 
 import * as cts from './constants';
-import {handleResponse} from './utils';
+import {handleResponse, checkResponse} from './utils';
 
 function ResetForm({token, className}){
 
-    let {showSuccessAlert} = useAlert();
+    let {showSuccessAlert, showFailAlert} = useAlert();
     let goTo = useNavigate();
     
     const [isPasswordVisible, setPasswordVisible] = useState(false);
@@ -24,6 +24,19 @@ function ResetForm({token, className}){
     const [hasMinChar, setHasMinChar] = useState(false);
 
     const api = useAPI();
+
+    useEffect(()=>{
+        (async ()=> {
+            // show loading animation as it checks
+            let result = await api.get(`account/reset/${token}`, checkResponse);
+            if(result){
+                // stop animation and show form
+            }else{
+                showFailAlert(cts.LINK_EXPIRED_HEADER, cts.LINK_EXPIRED_MESSAGE);
+                goTo("forgot");
+            }
+        })()
+    },[api, goTo, showFailAlert, token])
 
     const formik = useFormik({
         initialValues : {
@@ -56,7 +69,7 @@ function ResetForm({token, className}){
                 }else{
                     setHasNumber(true);
                 }
-                // Throw the first error for display
+                
                 if(errors.length) throw errors[0];
                 setPasswordValid(true)
             }catch(e){
@@ -88,7 +101,7 @@ function ResetForm({token, className}){
             <form onSubmit={formik.handleSubmit}>
                 <h1 className='font-medium text-4xl mb-2 text-accent'>Reset password</h1>
                 <h2 className='mb-8 text-lg'>Enter your new password</h2>
-                <div className="mb-16">
+                <div className="mb-10">
                     <label htmlFor="password" className="mb-2 inline-block">Password</label>
                     <div className="relative">
                         <input type={isPasswordVisible ? "text" : "password"} {...formik.getFieldProps("password")} 
