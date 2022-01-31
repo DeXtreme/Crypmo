@@ -14,7 +14,6 @@ class AccountTokenObtainPairSerializer(TokenObtainPairSerializer):
         token = super().get_token(user)
         token["username"] = user.username
         
-
         return token
 
 class AccountSerializer(serializers.ModelSerializer):
@@ -31,7 +30,7 @@ class RegisterAccountSerializer(serializers.Serializer):
                 RegexValidator(r"(?=.*[A-Z])","Password must contain at least one uppercase letter"),
                 RegexValidator(r"(?=.*[0-9])","Password must contain at least one number")])
     
-class ResetEmailSerializer(serializers.Serializer):
+class ForgotPasswordSerializer(serializers.Serializer):
     email = serializers.EmailField()
 
 class ResetPasswordSerializer(serializers.Serializer):
