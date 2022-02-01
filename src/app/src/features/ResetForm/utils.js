@@ -1,3 +1,7 @@
+export function checkResponse(response){
+    return !!response?.ok;
+}
+
 export async function handleResponse(response){
    
     let result = {

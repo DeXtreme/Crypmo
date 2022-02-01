@@ -5,6 +5,8 @@ import Home from './pages/Home';
 import Register from './pages/Register';
 import LogIn from './pages/LogIn';
 import Verify from './pages/Verify';
+import ResetPassword from './pages/ResetPassword';
+import ForgotPassword from './pages/ForgotPassword';
 import './App.css';
 
 function App() {
@@ -18,6 +20,8 @@ function App() {
           <Route path="register" element={<Register/>} />
           <Route path="login" element={<LogIn />} />
           <Route path="verify/:verify_id" element={<Verify />} />
+          <Route path="forgot" element={<ForgotPassword />} />
+          <Route path="reset/:token" element={<ResetPassword />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Router>

@@ -1,20 +1,21 @@
 import PropTypes from 'prop-types';
 import { useFormik } from 'formik';
-import { useState } from 'react';
-import {FaEnvelope, FaLock, FaEyeSlash,
-    FaEye, FaArrowRight, FaRegEnvelope, FaCheckCircle} from 'react-icons/fa';
-import { Link } from 'react-router-dom';
-
-import { handleResponse } from './utils'
+import { useState, useEffect } from 'react';
+import { useAlert } from '../../components/Alert';
+import { useNavigate } from 'react-router';
 import { useAPI } from '../../hooks';
 
+import { FaLock, FaCheckCircle, FaEyeSlash, FaEye } from 'react-icons/fa';
+
 import * as cts from './constants';
+import {handleResponse, checkResponse} from './utils';
 
-function RegisterForm({className}){
+function ResetForm({token, className}){
+
+    let {showSuccessAlert, showFailAlert} = useAlert();
+    let goTo = useNavigate();
+    
     const [isPasswordVisible, setPasswordVisible] = useState(false);
-    const [isSuccess, setSuccess] = useState(false);
-
-    const [isEmailValid, setEmailValid] = useState(false);
     const [isPasswordValid, setPasswordValid] = useState(false);
 
     // Track password validation state
@@ -24,29 +25,29 @@ function RegisterForm({className}){
 
     const api = useAPI();
 
+    useEffect(()=>{
+        (async ()=> {
+            // show loading animation as it checks
+            let result = await api.get(`account/reset/${token}`, checkResponse);
+            if(result){
+                // stop animation and show form
+            }else{
+                showFailAlert(cts.LINK_EXPIRED_HEADER, cts.LINK_EXPIRED_MESSAGE);
+                goTo("/forgot");
+            }
+        })()
+    },[api, goTo, showFailAlert, token])
+
     const formik = useFormik({
         initialValues : {
-            email: "",
             password: ""
         },
         validate: (values) => {
             const errors = {};
 
-            try {
-                if(!values.email) throw cts.EMAIL_REQUIRED_MESSAGE;
-                if(!/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/i.test(values.email)){
-                    throw cts.INVALID_EMAIL_MESSAGE;
-                }
-                setEmailValid(true);
-            }catch(e){
-                errors.email = e;
-                setEmailValid(false);
-            }
-
             try{
                 if(!values.password) throw cts.PASSWORD_REQUIRED_MESSAGE;
 
-                // Run all three validations and track the result
                 let errors = []
                 if(values.password.length < 8){
                     setHasMinChar(false);
@@ -68,7 +69,7 @@ function RegisterForm({className}){
                 }else{
                     setHasNumber(true);
                 }
-                // Throw the first error for display
+
                 if(errors.length) throw errors[0];
                 setPasswordValid(true)
             }catch(e){
@@ -79,49 +80,28 @@ function RegisterForm({className}){
             return errors;
         },
 
-        onSubmit: async (values, {setFieldError, setSubmitting}) => {
-            let result = await api.post("account",
-                                {email: values.email,password: values.password},
-                                handleResponse);
-            
+        onSubmit: async ({password}, {setFieldError, setSubmitting}) => {
+            let result = await api.post(`account/reset/${token}`,
+                                        {password},
+                                        handleResponse); 
             if(result.success){
-                setSuccess(true);
+                showSuccessAlert(cts.SUCCESS_HEADER, cts.SUCCESS_MESSAGE);
+                goTo("/login");
             }else if(result.errors){   
                 Object.keys(result.errors).map(x=> setFieldError(x, result.errors[x][0]))
             }
-
             setSubmitting(false);
         }
     })
 
     const handleVisible = () => setPasswordVisible(prev => !prev)
 
-    return (
+    return(
         <div className={className}>
-           
-            {!isSuccess ? <form onSubmit={formik.handleSubmit}>
-                
-                <h1 className="font-medium text-4xl mb-2 text-accent">Create Your Account</h1>
-                <h2 className=" mb-8 text-lg">Register with your email</h2>
-                
-                <div className="mb-4">
-                    <label htmlFor="email" className="mb-2 inline-block">Email</label>
-                    <div className="relative">
-                        <input id="email" type="email" {...formik.getFieldProps("email")}
-                        className={`bg-secondary px-14 py-3.5 w-full rounded-lg
-                        ${formik.errors.email && formik.touched.email && "ring-1 ring-red-500 rounded-lg accent-red-500"}
-                        transition-all disabled:brightness-75`}
-                        placeholder="Enter your email address" required disabled={formik.isSubmitting}/>
-                        
-                        <FaEnvelope className="text-accent absolute top-4 left-4 text-xl"/>
-                        <FaCheckCircle data-testid="email-valid" className={`${isEmailValid ? "text-green-500":"text-gray-600"} 
-                        absolute top-4 right-4 text-xl`}/>
-                    </div>
-                    {formik.errors.email && formik.touched.email && 
-                     <p className="my-1 text-red-600 text-sm">{formik.errors.email}</p>}
-                </div>
-                
-                <div className="mb-16">
+            <form onSubmit={formik.handleSubmit}>
+                <h1 className='font-medium text-4xl mb-2 text-accent'>Reset password</h1>
+                <h2 className='mb-8 text-lg'>Enter your new password</h2>
+                <div className="mb-10">
                     <label htmlFor="password" className="mb-2 inline-block">Password</label>
                     <div className="relative">
                         <input type={isPasswordVisible ? "text" : "password"} {...formik.getFieldProps("password")} 
@@ -164,33 +144,24 @@ function RegisterForm({className}){
                             
                         </ul>}
                     </div>
-
                 </div>
                 <div>
                     <button type="submit" className="bg-accent rounded-lg px-16 py-4 mb-4 transition-all hover:bg-white hover:text-accent
                     disabled:brightness-75 disabled:hover:bg-accent disabled:hover:text-white" disabled={formik.isSubmitting}>
-                        <div className="flex items-center justify-center">
-                            Create account<FaArrowRight className="inline-block ml-4"/>
-                        </div>
-                    </button>
+                    <div className="flex items-center justify-center">
+                        Change Password
+                    </div>
+                </button>
                 </div>
-                <p>Already have an account? <Link to="/login" className="text-accent font-medium">Log In</Link></p>
-            </form>:
-            <div className='text-center md:text-left'>
-                <div className='flex flex-col items-center md:flex-row md:items-center
-                md:justify-start md:gap-4'>
-                    <FaRegEnvelope className="text-accent text-6xl"/>
-                    <h1 className="text-3xl font-medium">{cts.SUCCESS_HEADER}</h1>
-                </div>
-                <p className="mt-5">{cts.SUCCESS_MESSAGE}</p>
-                <Link className="text-accent mt-4 inline-block" to="/login">Log In</Link>
-            </div>}
+            </form>
         </div>
-    );
+    )
 }
 
-RegisterForm.propTypes = {
+ResetForm.propTypes = {
+    token: PropTypes.string,
     className: PropTypes.string
 }
 
-export default RegisterForm;
+export default ResetForm;
+
