@@ -33,7 +33,7 @@ function ResetForm({token, className}){
                 // stop animation and show form
             }else{
                 showFailAlert(cts.LINK_EXPIRED_HEADER, cts.LINK_EXPIRED_MESSAGE);
-                goTo("forgot");
+                goTo("/forgot");
             }
         })()
     },[api, goTo, showFailAlert, token])
@@ -69,7 +69,7 @@ function ResetForm({token, className}){
                 }else{
                     setHasNumber(true);
                 }
-                
+
                 if(errors.length) throw errors[0];
                 setPasswordValid(true)
             }catch(e){
@@ -86,7 +86,7 @@ function ResetForm({token, className}){
                                         handleResponse); 
             if(result.success){
                 showSuccessAlert(cts.SUCCESS_HEADER, cts.SUCCESS_MESSAGE);
-                goTo("login");
+                goTo("/login");
             }else if(result.errors){   
                 Object.keys(result.errors).map(x=> setFieldError(x, result.errors[x][0]))
             }
