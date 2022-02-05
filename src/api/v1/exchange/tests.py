@@ -114,7 +114,7 @@ class ExchangeViewTestCase(APITestCase):
         self.assertEqual(data[0]["blockchain"], self.coin.blockchain.name)
         self.assertEqual(data[0]["price"], self.trade_2.price)
         self.assertEqual(data[0]["volume"], self.trade_1.amount + self.trade_2.amount)
-        self.assertEqual(data[0]["change"], (self.trade_2.price-self.trade_1.price)/self.trade_1.price)
+        self.assertEqual(data[0]["change"], ((self.trade_2.price-self.trade_1.price)/self.trade_1.price)*100)
 
     
 

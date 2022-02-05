@@ -18,6 +18,7 @@ class CoinSerializer(serializers.ModelSerializer):
 
 
 class PairSerializer(serializers.Serializer):
+    id= serializers.IntegerField()
     name = serializers.CharField()
     ticker = serializers.CharField()
     blockchain = serializers.CharField(source="blockchain.name")
@@ -27,7 +28,7 @@ class PairSerializer(serializers.Serializer):
 
     def get_change(self, obj):
         if(obj.price and obj.first):
-            return (obj.price-obj.first)/obj.first
+            return ((obj.price-obj.first)/obj.first) * 100
 
         return 0
     
