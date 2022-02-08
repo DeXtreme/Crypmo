@@ -1,0 +1,1 @@
+export const NO_PAIRS_MESSAGE = "There are no available pairs. Check again later";

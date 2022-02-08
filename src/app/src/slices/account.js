@@ -8,9 +8,7 @@ const account = createSlice({
             isLoggedIn: false},
     reducers: {
         login(state, action){
-            let access = action.payload.access;
-            let refresh = action.payload.refresh;
-            let username = action.payload.username;
+            let {access, refresh, username } = action.payload;
             return {...state, 
                 username, 
                 access, 

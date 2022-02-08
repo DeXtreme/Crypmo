@@ -1,12 +1,14 @@
 import { createStore, combineReducers} from 'redux';
 
-import accountSlice from './slices/account';
-import alertSlice from './components/Alert/slices';
+import AccountSlice from './slices/account';
+import PairsSlice  from './slices/pairs';
+import AlertSlice from './components/Alert/slices';
 
 
 let reducers = combineReducers({
-    account: accountSlice.reducer,
-    alert: alertSlice.reducer,
+    account: AccountSlice.reducer,
+    pairs: PairsSlice.reducer,
+    alert: AlertSlice.reducer,
 })
 
 export const store = createStore(reducers);

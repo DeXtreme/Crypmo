@@ -77,8 +77,8 @@ function Navbar({showMenu,fixed}){
                         </div>
                     </div>:
                     <div className="flex items-center gap-6 ml-auto">
-                        <Link to="login" className="hover:text-accent" data-testid="login">Log In</Link>
-                        <Link to="register" className="transition-colors bg-accent py-2 px-5 
+                        <Link to="/login" className="hover:text-accent" data-testid="login">Log In</Link>
+                        <Link to="/register" className="transition-colors bg-accent py-2 px-5 
                         rounded-md text-sm hover:bg-white hover:text-accent" data-testid="register">
                             Register
                         </Link>
