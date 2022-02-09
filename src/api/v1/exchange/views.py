@@ -12,6 +12,7 @@ from .models import Coin, Trade
 class ExchangeView(GenericAPIView):
 
     permission_classes = []
+    queryset = Coin.objects.all()
     
     def get(self, request, *args, **kwargs):
         trades_today = Trade.objects.filter(coin=OuterRef("id"),

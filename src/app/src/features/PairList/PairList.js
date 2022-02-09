@@ -44,7 +44,7 @@ function PairList({className}){
             setLoading(false);
         },5000);*/
 
-        let result = await api.get(`exchange`, handleResponse);
+        let result = await api.get("exchange/", handleResponse);
         if(result){
             addPairs(result); 
         }
