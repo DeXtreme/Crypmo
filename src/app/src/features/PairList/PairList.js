@@ -2,7 +2,7 @@
 import PropTypes from 'prop-types';
 import { useEffect, useState } from 'react';
 import { usePairs, useAPI } from '../../hooks';
-import {RiBarChart2Fill} from 'react-icons/ri';
+import {AiOutlineFileSearch} from 'react-icons/ai';
 
 import Pair from '../../components/Pair';
 import PairLoading from '../../components/PairLoading';
@@ -44,6 +44,7 @@ function PairList({className}){
             setLoading(false);
         },5000);*/
 
+        
         let result = await api.get("exchange/", handleResponse);
         if(result){
             addPairs(result); 
@@ -97,12 +98,12 @@ function PairList({className}){
                 {Array(5).fill(null).map(()=> <PairLoading />)}
                 
             </div>: 
-            <div className='flex justify-center items-center'>
-                <div className='text-center'>
-                    <RiBarChart2Fill className='text-secondary m-auto text-9xl'/>
-                    <p className='mb-10'>{cts.NO_PAIRS_MESSAGE}</p>
-                    <button className='bg-accent py-4 px-12 rounded-lg 
-                    hover:bg-white hover:text-accent transition-colors'>
+            <div className='flex justify-center'>
+                <div className='text-center px-12 mt-20'>
+                    <AiOutlineFileSearch className='text-secondary m-auto text-9xl mb-4'/>
+                    <p className='mb-10 text-gray-500'>{cts.NO_PAIRS_MESSAGE}</p>
+                    <button onClick={loadPairs} className='bg-accent py-4 px-8 rounded-lg 
+                    hover:bg-white hover:text-accent transition-all text-sm'>
                         Refresh
                     </button>
                 </div>
