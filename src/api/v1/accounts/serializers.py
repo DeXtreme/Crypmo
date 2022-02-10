@@ -1,5 +1,3 @@
-import email
-from django.core import validators
 from django.contrib.auth.models import User
 from django.core.validators import RegexValidator
 from rest_framework import serializers

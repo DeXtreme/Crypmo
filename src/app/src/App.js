@@ -7,6 +7,9 @@ import LogIn from './pages/LogIn';
 import Verify from './pages/Verify';
 import ResetPassword from './pages/ResetPassword';
 import ForgotPassword from './pages/ForgotPassword';
+import Exchange from './pages/Exchange';
+import Market from './pages/Exchange/Market';
+
 import './App.css';
 
 function App() {
@@ -22,6 +25,10 @@ function App() {
           <Route path="verify/:verify_id" element={<Verify />} />
           <Route path="forgot" element={<ForgotPassword />} />
           <Route path="reset/:token" element={<ResetPassword />} />
+          <Route path="exchange" element={<Exchange />}>
+            <Route path="" element={<Market />} />
+            <Route path="markets" element={<Market />} />
+          </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Router>

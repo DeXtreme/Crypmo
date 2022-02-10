@@ -1,6 +1,7 @@
 import { useDispatch, useSelector } from "react-redux";
 import { useAlert } from "./components/Alert";
-import accountSlice from './slices/account';
+import AccountSlice from './slices/account';
+import PairsSlice from './slices/pairs';
 
 import { API_URL, 
     NETWORK_ERROR_HEADER,
@@ -45,10 +46,25 @@ export function useAccount(){
     return {
         account,
         login({username, access, refresh}){
-            dispatch(accountSlice.actions.login({username, access, refresh}))
+            dispatch(AccountSlice.actions.login({username, access, refresh}))
         },
         logout(){
-            dispatch(accountSlice.actions.logout())
+            dispatch(AccountSlice.actions.logout())
+        }
+    }
+}
+
+export function usePairs(){
+    let pairs = useSelector(state => state.pairs);
+    let dispatch = useDispatch()
+
+    return {
+        pairs,
+        addPairs(pairs){
+            dispatch(PairsSlice.actions.addPairs(pairs));
+        },
+        updatePair(pair){
+            dispatch(PairsSlice.actions.updatePair(pair));
         }
     }
 }
