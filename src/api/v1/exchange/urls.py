@@ -5,5 +5,5 @@ from .views import ExchangeView
 app_name = "exchange"
 
 urlpatterns = [
-    path("", ExchangeView.as_view(), name="exchange-list")
+    path("", ExchangeView.as_view({"get":"list"}), name="exchange-list")
 ]
