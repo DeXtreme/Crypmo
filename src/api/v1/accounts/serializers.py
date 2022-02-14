@@ -18,7 +18,7 @@ class AccountSerializer(serializers.ModelSerializer):
     username = serializers.EmailField(source="user.username")
     class Meta:
         model = Account
-        fields = ["id","username","balance"]
+        fields = ["id","username"]
 
 class RegisterAccountSerializer(serializers.Serializer):
     email = serializers.EmailField(source="username",validators=[

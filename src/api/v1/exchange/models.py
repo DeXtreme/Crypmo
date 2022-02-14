@@ -136,10 +136,6 @@ class Trade(models.Model):
         The account the order belongs to
     coin: Coin
         The coin that was traded
-    type: str
-        The type of order
-            L - Limit order
-            M - Market order
     position: str
         The position of the order
             B - Buy/Long
