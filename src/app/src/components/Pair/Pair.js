@@ -34,27 +34,36 @@ function Pair({ticker, blockchain,
     return(
         <div className='grid auto-cols-fr grid-rows-1 p-4 hover:bg-secondary'>
             <div className='col-start-1 flex items-center'>
-                <img src={`https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/svg/color/${ticker.toLowerCase()}.svg`} className='rounded-full w-9 h-9'/>
+                <img src={`https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/svg/color/${ticker.toLowerCase()}.svg`} 
+                className='rounded-full w-9 h-9' alt='crypto-icon'/>
                 <div className='ml-2'>
-                    <p className='font-medium text-sm'>{ticker.toUpperCase()} <span className='text-xs font-bold text-gray-500 hidden md:inline'>/GHS</span></p>
+                    <p className='font-medium text-sm'>{ticker.toUpperCase()} <span className='text-xs font-bold text-gray-500'>/GHS</span></p>
                     <p className='text-xs text-gray-500 font-medium md:hidden'>Vol {formatVolume(volume)}</p>
                     <p className='text-xs text-gray-500 font-medium hidden md:block'>{blockchain}</p>
                 </div>
                 
             </div>
-            <div className='col-start-2 flex items-center justify-center'>
+            <div className='hidden md:flex col-start-2 items-center justify-center'>
                 <p className={`font-medium text-sm
                  ${ (isDown !== null) ? (isDown) ? "text-red-500" : "text-green-500" : ""}`}>
                     {formatPrice(price)}
                 </p>
             </div>
-            <div className='col-start-3 justify-center hidden md:flex flex-col items-center'>
+            <div className='hidden md:flex col-start-3 justify-center flex-col items-center'>
                 <p className=' font-medium text-sm'>{volume}</p>
                 <p className=' text-xs font-medium text-gray-500'>{formatVolume(volume * price)}</p>
             </div>
-            <div className='col-start-3 md:col-start-4 flex items-center justify-end'>
-                <p className={`py-3 px-1 rounded-lg text-xs font-medium 
-                 w-20 text-center ${(change!== 0) ? (change > 0) ? "bg-green-500" : "bg-red-500" : "bg-gray-400"}`}>
+            <div className='col-start-2 md:col-start-4 flex flex-col items-end justify-center'>
+                <p className={`hidden md:block text-xs font-bold 
+                 w-20 text-center ${(change!== 0) ? (change > 0) ? "text-green-400" : "text-red-500" : "text-gray-400"}`}>
+                    {signedChange}
+                </p>
+                <p className={`md:hidden font-medium text-sm
+                 ${ (isDown !== null) ? (isDown) ? "text-red-500" : "text-green-500" : ""}`}>
+                    {formatPrice(price)}
+                </p>
+                <p className={`md:hidden text-sm font-medium 
+                 ${(change!== 0) ? (change > 0) ? "text-green-500" : "text-red-500" : "text-gray-400"}`}>
                     {signedChange}
                 </p>
             </div>
