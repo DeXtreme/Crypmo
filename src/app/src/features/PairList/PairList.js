@@ -98,7 +98,7 @@ function PairList({className}){
                         <div className='w-16 h-4 bg-secondary rounded-full m-auto' />
                     </div>
                 </div>
-                {Array(5).fill(null).map(()=> <PairLoading />)}
+                {Array(5).fill(null).map((_,i)=> <PairLoading key={i} />)}
                 
             </div>: 
             <div className='flex justify-center'>
