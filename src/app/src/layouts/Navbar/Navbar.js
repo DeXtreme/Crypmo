@@ -1,6 +1,11 @@
 import PropTypes from 'prop-types';
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+
+import MarketIcon from '../../components/MarketIcon';
+import TradeIcon from '../../components/TradeIcon';
+import WalletIcon from '../../components/WalletIcon';
+
 import {RiBarChart2Fill} from 'react-icons/ri';
 import { FaWallet, FaChevronDown } from 'react-icons/fa';
 import { MdSwapVert } from 'react-icons/md';
@@ -32,21 +37,18 @@ function Navbar({showMenu,fixed}){
                 </Link>
                 {showMenu && 
                 <>
-                    <div className="fixed left-0 bottom-0 w-full bg-primary py-3 border-t
+                    <div className="fixed left-0 bottom-0 w-full bg-primary pt-2 border-t
                     border-secondary rounded-xl flex justify-around items-baseline text-gray-400 
                     md:relative md:w-auto md:bg-transparent md:border-none md:text-white
-                    md:ml-16 md:gap-8">
-                        <Link to="exchange/markets" className={`transition-colors hover:text-accent
-                        ${(/\/exchange\/markets/ig.test(path)) && "text-accent"}`}>
-                            <RiBarChart2Fill className='m-auto text-2xl md:hidden'/> 
+                    md:ml-16 md:gap-8 md:pt-0">
+                        <Link to="/exchange/markets">
+                            <MarketIcon selected={/\/exchange\/markets/ig.test(path)} />
                         </Link>
-                        <Link to="exchange/trade" className={`transition-colors hover:text-accent
-                        ${(/\/exchange\/trade/ig.test(path)) && "text-accent"}`}>
-                            <MdSwapVert className='m-auto text-2xl md:hidden' />      
+                        <Link to="/exchange/trade">
+                            <TradeIcon selected={/\/exchange\/trade/ig.test(path)} /> 
                         </Link>
-                        <Link to="exchange/wallet" className={`transition-colors hover:text-accent
-                        ${(/\/exchange\/wallet/ig.test(path)) && "text-accent"}`}>
-                            <FaWallet className='m-auto text-2xl md:hidden' />                      
+                        <Link to="/exchange/wallet">
+                            <WalletIcon selected={/\/exchange\/wallet/ig.test(path)} />            
                         </Link>
                     </div>
                     { account.isLoggedIn ?
