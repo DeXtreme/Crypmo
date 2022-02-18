@@ -6,9 +6,7 @@ import MarketIcon from '../../components/MarketIcon';
 import TradeIcon from '../../components/TradeIcon';
 import WalletIcon from '../../components/WalletIcon';
 
-import {RiBarChart2Fill} from 'react-icons/ri';
-import { FaWallet, FaChevronDown } from 'react-icons/fa';
-import { MdSwapVert } from 'react-icons/md';
+import { FaChevronDown } from 'react-icons/fa';
 import { BiLogOut } from 'react-icons/bi';
 
 import { useAccount } from '../../hooks';
