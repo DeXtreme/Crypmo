@@ -44,16 +44,16 @@ function PairList({className}){
             setLoading(false);
         },5000);*/
 
-        
         let result = await api.get("exchange/", handleResponse);
         if(result){
             addPairs(result); 
         }
         setLoading(false); 
+    
     }
     
     useEffect(()=> {
-        if(Object.keys(pairs).length == 0){
+        if(Object.keys(pairs).length === 0){
             loadPairs();
         }
     },[]);
@@ -64,16 +64,19 @@ function PairList({className}){
             {(Object.keys(pairs).length > 0) ? <div>
                 <div className='grid auto-cols-fr grid-rows-1-4 mb-2 px-4'>
                     <div className="col-start-1 text-center font-medium text-xs text-gray-500">
-                        Name/Volume
+                        Name / Volume
                     </div>
-                    <div className='col-start-2 text-center font-medium text-xs text-gray-500'>
+                    <div className='hidden md:block col-start-2 text-center font-medium text-xs text-gray-500'>
                         Price
                     </div>
                     <div className='hidden md:block col-start-3 text-center font-medium text-xs text-gray-500'>
                         24h Volume
                     </div>
-                    <div className='col-start-3 md:col-start-4 text-center font-medium text-xs text-gray-500'>
+                    <div className='hidden md:block col-start-3 md:col-start-4 text-center font-medium text-xs text-gray-500'>
                         24h Change
+                    </div>
+                    <div className='md:hidden col-start-2 text-center font-medium text-xs text-gray-500'>
+                        Price / 24h Change
                     </div>
                 </div>
                 {Object.keys(pairs).map(ticker => <Pair ticker={ticker} key={pairs[ticker].id} {...pairs[ticker]}/>)}
@@ -85,17 +88,17 @@ function PairList({className}){
                     <div className="col-start-1">
                         <div className='w-16 h-4 bg-secondary rounded-full m-auto' />
                     </div>
-                    <div className='col-start-2 text-center font-medium text-xs text-gray-500'>
+                    <div className='hidden md:block col-start-2 text-center font-medium text-xs text-gray-500'>
                         <div className='w-16 h-4 bg-secondary rounded-full m-auto' />
                     </div>
                     <div className='hidden md:block col-start-3 text-center font-medium text-xs text-gray-500'>
                         <div className='w-16 h-4 bg-secondary rounded-full m-auto' />
                     </div>
-                    <div className='col-start-3 md:col-start-4 text-center font-medium text-xs text-gray-500'>
+                    <div className='col-start-2 md:col-start-4 text-center font-medium text-xs text-gray-500'>
                         <div className='w-16 h-4 bg-secondary rounded-full m-auto' />
                     </div>
                 </div>
-                {Array(5).fill(null).map(()=> <PairLoading />)}
+                {Array(5).fill(null).map((_,i)=> <PairLoading key={i} />)}
                 
             </div>: 
             <div className='flex justify-center'>

@@ -49,7 +49,7 @@ it("renders the pair data", async ()=>{
     await waitFor(()=>{
         expect(screen.getByText(pair.ticker)).toBeInTheDocument();
         expect(screen.getByText(pair.blockchain)).toBeInTheDocument();
-        expect(screen.getByText(formatPrice(pair.price))).toBeInTheDocument();
+        expect(screen.getAllByText(formatPrice(pair.price))).not.toBeNull();
         expect(screen.getByText(formatVolume(pair.volume))).toBeInTheDocument();
         expect(screen.getByText(`+${formatChange(pair.change)}%`)).toBeInTheDocument();
     })

@@ -106,8 +106,6 @@ class ExchangeViewTestCase(APITestCase):
         response = self.client.get(url)
         data = response.json()
 
-        print(data)
-
         self.assertEqual(len(data), 1)
         self.assertEqual(data[0]["name"], self.coin.name)
         self.assertEqual(data[0]["ticker"], self.coin.ticker)
