@@ -1,4 +1,5 @@
 from django.urls import reverse
+from django.utils import dateparse, timezone
 from rest_framework.test import APITestCase
 from django.contrib.auth.models import User
 
@@ -106,8 +107,6 @@ class ExchangeViewTestCase(APITestCase):
         response = self.client.get(url)
         data = response.json()
 
-        print(data)
-
         self.assertEqual(len(data), 1)
         self.assertEqual(data[0]["name"], self.coin.name)
         self.assertEqual(data[0]["ticker"], self.coin.ticker)
@@ -115,6 +114,53 @@ class ExchangeViewTestCase(APITestCase):
         self.assertEqual(data[0]["price"], self.trade_2.price)
         self.assertEqual(data[0]["volume"], self.trade_1.amount + self.trade_2.amount)
         self.assertEqual(data[0]["change"], ((self.trade_2.price-self.trade_1.price)/self.trade_1.price)*100)
+
+    def test_get_coin_price_history_default(self):
+        url = reverse("exchange:exchange-detail",args=["TC"])
+
+        response = self.client.get(url)
+        data = response.json()
+
+
+        self.assertEqual(len(data),1)
+        self.assertIn("time",data[0])
+        self.assertIn("price",data[0])
+        self.assertIn("volume",data[0])
+        self.assertEqual(data[0]["price"],self.trade_2.price)
+        self.assertEqual(data[0]["volume"],self.trade_1.amount+self.trade_2.amount)
+        self.assertEqual(dateparse.parse_datetime(data[0]["time"]),self.trade_2.created_at.replace(minute=0,second=0,microsecond=0))
+
+    
+    def test_get_coin_price_history_m1(self):
+        url = reverse("exchange:exchange-detail",args=["TC"])
+
+        response = self.client.get(url,{"interval":"m1"})
+        data = response.json()
+
+
+        self.assertEqual(len(data),1)
+        self.assertIn("time",data[0])
+        self.assertIn("price",data[0])
+        self.assertIn("volume",data[0])
+        self.assertEqual(data[0]["price"],self.trade_2.price)
+        self.assertEqual(data[0]["volume"],self.trade_1.amount+self.trade_2.amount)
+        self.assertEqual(dateparse.parse_datetime(data[0]["time"]),self.trade_2.created_at.replace(second=0,microsecond=0))
+    
+    def test_get_coin_price_history_d1(self):
+        url = reverse("exchange:exchange-detail",args=["TC"])
+
+        response = self.client.get(url,{"interval":"D1"})
+        data = response.json()
+
+
+        self.assertEqual(len(data),1)
+        self.assertIn("time",data[0])
+        self.assertIn("price",data[0])
+        self.assertIn("volume",data[0])
+        self.assertEqual(data[0]["price"],self.trade_2.price)
+        self.assertEqual(data[0]["volume"],self.trade_1.amount+self.trade_2.amount)
+        self.assertEqual(dateparse.parse_datetime(data[0]["time"]),
+                         self.trade_2.created_at.replace(hour=0,minute=0,second=0,microsecond=0))
 
     
 
