@@ -1,11 +1,9 @@
-
 from datetime import timedelta, datetime
 import pandas as pd
 import numpy as np
 from django.utils import timezone
-from django.db.models import OuterRef, Subquery, Sum, Value
+from django.db.models import OuterRef, Subquery, Sum
 from rest_framework.viewsets import GenericViewSet
-from rest_framework import status
 from rest_framework.response import Response
 
 
@@ -27,10 +25,9 @@ class ExchangeView(GenericViewSet):
         trades_today = Trade.objects.filter(coin=OuterRef("id"),
                                             created_at__date=datetime.now())
 
-        first_trade = Subquery(trades_today.order_by("created_at").values("price")[:1]) 
-        # Annotating a static value to remove default grouping
-        volume = Subquery(trades_today.annotate(x=Value(1))\
-                                      .values("x")\
+        first_trade = Subquery(trades_today.values("price")[:1]) 
+
+        volume = Subquery(trades_today.values("coin")\
                                       .annotate(volume=Sum("amount"))\
                                       .values("volume"))
 
@@ -56,7 +53,7 @@ class ExchangeView(GenericViewSet):
 
         if interval == "d1":
             now = timezone.now().date()
-            start_time = now-timedelta(days=30)
+            start_time = now - timedelta(days=30)
             trade_data = Trade.objects.filter(coin=coin,
                                               created_at__gte=start_time)\
                                       .values_list("created_at","price","amount")
@@ -64,9 +61,17 @@ class ExchangeView(GenericViewSet):
             df = pd.DataFrame(list(trade_data),
                               columns=["time","price","volume"])
             
+            df["open"] = df["price"]
+            df["high"] = df["price"]
+            df["low"] = df["price"]
+            df["close"] = df["price"]
+            
             
             df = df.resample("D", on="time")\
-                   .agg({"price": lambda x: x.iloc[-1] if len(x) > 0 else np.nan,
+                   .agg({"open": lambda x: x.iloc[0] if len(x) > 0 else np.nan,
+                         "high": lambda x: x.max() if len(x) > 0 else np.nan,
+                         "low": lambda x: x.min() if len(x) > 0 else np.nan,
+                         "close": lambda x: x.iloc[-1] if len(x) > 0 else np.nan,
                          "volume": lambda x: x.sum()})
 
         elif interval == "h4":
@@ -79,9 +84,19 @@ class ExchangeView(GenericViewSet):
             df = pd.DataFrame(list(trade_data),
                               columns=["time","price","volume"])
             
+            df["open"] = df["price"]
+            df["high"] = df["price"]
+            df["low"] = df["price"]
+            df["close"] = df["price"]
+            
+            
             df = df.resample("4H", on="time")\
-                   .agg({"price": lambda x: x.iloc[-1] if len(x) > 0 else np.nan,
+                   .agg({"open": lambda x: x.iloc[0] if len(x) > 0 else np.nan,
+                         "high": lambda x: x.max() if len(x) > 0 else np.nan,
+                         "low": lambda x: x.min() if len(x) > 0 else np.nan,
+                         "close": lambda x: x.iloc[-1] if len(x) > 0 else np.nan,
                          "volume": lambda x: x.sum()})
+
         elif interval == "m5":
             now = timezone.now().replace(second=0,microsecond=0)
             start_time = now-timedelta(minutes=24*60)
@@ -92,8 +107,17 @@ class ExchangeView(GenericViewSet):
             df = pd.DataFrame(list(trade_data),
                               columns=["time","price","volume"])
             
+            df["open"] = df["price"]
+            df["high"] = df["price"]
+            df["low"] = df["price"]
+            df["close"] = df["price"]
+            
+            
             df = df.resample("5T", on="time")\
-                   .agg({"price": lambda x: x.iloc[-1] if len(x) > 0 else np.nan,
+                   .agg({"open": lambda x: x.iloc[0] if len(x) > 0 else np.nan,
+                         "high": lambda x: x.max() if len(x) > 0 else np.nan,
+                         "low": lambda x: x.min() if len(x) > 0 else np.nan,
+                         "close": lambda x: x.iloc[-1] if len(x) > 0 else np.nan,
                          "volume": lambda x: x.sum()})
 
         elif interval == "m1":
@@ -106,8 +130,17 @@ class ExchangeView(GenericViewSet):
             df = pd.DataFrame(list(trade_data),
                               columns=["time","price","volume"])
             
+            df["open"] = df["price"]
+            df["high"] = df["price"]
+            df["low"] = df["price"]
+            df["close"] = df["price"]
+            
+            
             df = df.resample("T", on="time")\
-                   .agg({"price": lambda x: x.iloc[-1] if len(x) > 0 else np.nan,
+                   .agg({"open": lambda x: x.iloc[0] if len(x) > 0 else np.nan,
+                         "high": lambda x: x.max() if len(x) > 0 else np.nan,
+                         "low": lambda x: x.min() if len(x) > 0 else np.nan,
+                         "close": lambda x: x.iloc[-1] if len(x) > 0 else np.nan,
                          "volume": lambda x: x.sum()})
             
         else:
@@ -120,8 +153,17 @@ class ExchangeView(GenericViewSet):
             df = pd.DataFrame(list(trade_data),
                               columns=["time","price","volume"])
             
+            df["open"] = df["price"]
+            df["high"] = df["price"]
+            df["low"] = df["price"]
+            df["close"] = df["price"]
+            
+            
             df = df.resample("H", on="time")\
-                   .agg({"price": lambda x: x.iloc[-1] if len(x) > 0 else np.nan,
+                   .agg({"open": lambda x: x.iloc[0] if len(x) > 0 else np.nan,
+                         "high": lambda x: x.max() if len(x) > 0 else np.nan,
+                         "low": lambda x: x.min() if len(x) > 0 else np.nan,
+                         "close": lambda x: x.iloc[-1] if len(x) > 0 else np.nan,
                          "volume": lambda x: x.sum()})
             
         df = df.reset_index()    

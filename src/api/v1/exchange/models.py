@@ -1,9 +1,8 @@
-from turtle import position
 from uuid import uuid4
 from django.db import models
+from django.db.models.functions import TruncDate
+from django.db.models import F
 from v1.accounts.models import Account
-
-
 
 class Blockchain(models.Model):
     """ Blockchain model
@@ -162,3 +161,6 @@ class Trade(models.Model):
     price = models.FloatField(null=False, blank=False)
     updated_at = models.DateTimeField(auto_now=True)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        indexes = [models.Index("coin", TruncDate("created_at"), F("created_at").desc(),name="trade_idx")]

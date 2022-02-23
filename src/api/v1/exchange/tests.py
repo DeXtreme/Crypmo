@@ -1,3 +1,4 @@
+import pandas as pd
 from django.urls import reverse
 from django.utils import dateparse, timezone
 from rest_framework.test import APITestCase
@@ -94,6 +95,8 @@ class ExchangeViewTestCase(APITestCase):
         cls.order_2 = Order.objects.create(account=cls.account_2, coin=cls.coin, 
                                          type=Order.Types.LIMIT, position=Order.Positions.SELL,
                                          amount=100, price=1)
+
+        
         
         cls.trade_1 = Trade.objects.create(account=cls.account_1, coin=cls.coin, position=Trade.Positions.BUY,
                                            amount=200,price=1.2)
@@ -124,9 +127,15 @@ class ExchangeViewTestCase(APITestCase):
 
         self.assertEqual(len(data),1)
         self.assertIn("time",data[0])
-        self.assertIn("price",data[0])
+        self.assertIn("open",data[0])
+        self.assertIn("high",data[0])
+        self.assertIn("low",data[0])
+        self.assertIn("close",data[0])
         self.assertIn("volume",data[0])
-        self.assertEqual(data[0]["price"],self.trade_2.price)
+        self.assertEqual(data[0]["open"],self.trade_1.price)
+        self.assertEqual(data[0]["high"],self.trade_2.price)
+        self.assertEqual(data[0]["low"],self.trade_1.price)
+        self.assertEqual(data[0]["close"],self.trade_2.price)
         self.assertEqual(data[0]["volume"],self.trade_1.amount+self.trade_2.amount)
         self.assertEqual(dateparse.parse_datetime(data[0]["time"]),self.trade_2.created_at.replace(minute=0,second=0,microsecond=0))
 
@@ -139,10 +148,15 @@ class ExchangeViewTestCase(APITestCase):
 
 
         self.assertEqual(len(data),1)
-        self.assertIn("time",data[0])
-        self.assertIn("price",data[0])
+        self.assertIn("open",data[0])
+        self.assertIn("high",data[0])
+        self.assertIn("low",data[0])
+        self.assertIn("close",data[0])
         self.assertIn("volume",data[0])
-        self.assertEqual(data[0]["price"],self.trade_2.price)
+        self.assertEqual(data[0]["open"],self.trade_1.price)
+        self.assertEqual(data[0]["high"],self.trade_2.price)
+        self.assertEqual(data[0]["low"],self.trade_1.price)
+        self.assertEqual(data[0]["close"],self.trade_2.price)
         self.assertEqual(data[0]["volume"],self.trade_1.amount+self.trade_2.amount)
         self.assertEqual(dateparse.parse_datetime(data[0]["time"]),self.trade_2.created_at.replace(second=0,microsecond=0))
     
@@ -154,10 +168,15 @@ class ExchangeViewTestCase(APITestCase):
 
 
         self.assertEqual(len(data),1)
-        self.assertIn("time",data[0])
-        self.assertIn("price",data[0])
+        self.assertIn("open",data[0])
+        self.assertIn("high",data[0])
+        self.assertIn("low",data[0])
+        self.assertIn("close",data[0])
         self.assertIn("volume",data[0])
-        self.assertEqual(data[0]["price"],self.trade_2.price)
+        self.assertEqual(data[0]["open"],self.trade_1.price)
+        self.assertEqual(data[0]["high"],self.trade_2.price)
+        self.assertEqual(data[0]["low"],self.trade_1.price)
+        self.assertEqual(data[0]["close"],self.trade_2.price)
         self.assertEqual(data[0]["volume"],self.trade_1.amount+self.trade_2.amount)
         self.assertEqual(dateparse.parse_datetime(data[0]["time"]),
                          self.trade_2.created_at.replace(hour=0,minute=0,second=0,microsecond=0))
