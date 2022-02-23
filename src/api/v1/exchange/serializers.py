@@ -1,4 +1,3 @@
-from email.policy import default
 from rest_framework import serializers
 
 from .models import (
@@ -38,6 +37,24 @@ class PairSerializer(serializers.Serializer):
     def get_volume(self, obj):
         return obj.volume if obj.volume else 0
 
+class TickerSerializer(serializers.Serializer):
+    id= serializers.IntegerField()
+    ticker = serializers.CharField()
+    price = serializers.SerializerMethodField()
+    volume = serializers.SerializerMethodField()
+    change = serializers.SerializerMethodField()
+
+    def get_change(self, obj):
+        if(obj.price and obj.first):
+            return ((obj.price-obj.first)/obj.first) * 100
+
+        return 0
+    
+    def get_price(self, obj):
+        return obj.price if obj.price else 0
+
+    def get_volume(self, obj):
+        return obj.volume if obj.volume else 0
 
     
 class OrderSerializer(serializers.ModelSerializer):
