@@ -1,4 +1,10 @@
-from datetime import timedelta, datetime
+from datetime import timedelta
+from tokenize import group
+import pandas as pd
+from numpy import nan
+from asgiref.sync import async_to_sync
+from channels.layers import get_channel_layer
+from django.utils import timezone
 from django.db.models import OuterRef, Subquery, Sum
 from crypmo.celery import app
 from .models import Coin,Trade
@@ -12,7 +18,7 @@ def setupTicker(sender,**kwargs):
 @app.task
 def ticker():
     trades_today = Trade.objects.filter(coin=OuterRef("id"),
-                                        created_at__date=datetime.now())
+                                        created_at__date=timezone.now())
 
     first_trade = Subquery(trades_today.values("price")[:1]) 
 
@@ -31,4 +37,48 @@ def ticker():
     serializer = TickerSerializer(pairs, many=True)
     data = serializer.data
     
-    print(data)
+    async_to_sync(get_channel_layer.group_send)(
+        "tickers", 
+        data
+    )    
+
+@app.task
+def ticker_kline(coin):
+    intervals = {"d1": "D",
+                 "h4": "4H",
+                 "h": "H",
+                 "m5": "5T",
+                 "m1": "T"}
+
+    from_time = timezone.now() - timedelta(days=1)
+    trade_data = Trade.objects.filter(coin=coin,
+                                      created_at__gte=from_time)\
+                                .values_list("created_at","price","amount")
+
+    df = pd.DataFrame(list(trade_data), columns=["time","price","volume"])
+        
+    df["open"] = df["price"]
+    df["high"] = df["price"]
+    df["low"] = df["price"]
+    df["close"] = df["price"]
+
+    for interval, offset in intervals:
+                
+        df2 = df.resample(offset, on="time")\
+                .agg({"open": lambda x: x.iloc[0] if len(x) > 0 else nan,
+                      "high": lambda x: x.max() if len(x) > 0 else nan,
+                      "low": lambda x: x.min() if len(x) > 0 else nan,
+                      "close": lambda x: x.iloc[-1] if len(x) > 0 else nan,
+                      "volume": lambda x: x.sum()})
+
+        df2 = df2.reset_index()    
+        df2 = df2.dropna()
+
+        data = df2.to_dict('records')
+
+        group_name = f"{coin}_kline_{interval}"
+
+        async_to_sync(get_channel_layer.group_send)(
+            group_name, 
+            data
+        )  

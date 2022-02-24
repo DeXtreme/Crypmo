@@ -163,4 +163,5 @@ class Trade(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        indexes = [models.Index("coin", TruncDate("created_at"), F("created_at").desc(),name="trade_idx")]
+        indexes = [models.Index("coin", TruncDate("created_at"),name="trade_date_idx"),
+                   models.Index("coin",F("created_at").desc(),name="trade_latest_idx")]

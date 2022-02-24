@@ -1,6 +1,6 @@
-from datetime import timedelta, datetime
+from datetime import datetime, timedelta
 import pandas as pd
-import numpy as np
+from numpy import nan
 from django.utils import timezone
 from django.db.models import OuterRef, Subquery, Sum
 from rest_framework.viewsets import GenericViewSet
@@ -23,21 +23,21 @@ class ExchangeView(GenericViewSet):
 
     def list(self, request, *args, **kwargs):
         trades_today = Trade.objects.filter(coin=OuterRef("id"),
-                                            created_at__date=datetime.now())
+                                            created_at__date=timezone.now())
 
-        first_trade = Subquery(trades_today.values("price")[:1]) 
+        first_price_today = Subquery(trades_today.values("price")[:1]) 
 
-        volume = Subquery(trades_today.values("coin")\
+        volume_today = Subquery(trades_today.values("coin")\
                                       .annotate(volume=Sum("amount"))\
                                       .values("volume"))
 
-        last_trade = Subquery(Trade.objects.filter(coin=OuterRef("id"))\
+        last_price = Subquery(Trade.objects.filter(coin=OuterRef("id"))\
                                            .order_by("-created_at")
                                            .values("price")[:1])
         
-        pairs = Coin.objects.annotate(price=last_trade,
-                                      first=first_trade,
-                                      volume=volume)
+        pairs = Coin.objects.annotate(last_price=last_price,
+                                      first_price_today=first_price_today,
+                                      volume_today=volume_today)
         
         serializer = PairSerializer(pairs, many=True)
         data = serializer.data
@@ -47,125 +47,39 @@ class ExchangeView(GenericViewSet):
     def retrieve(self,request,*args,**kwargs):
 
         coin = self.get_object()
-        start = request.query_params.get("start","")
+        to = request.query_params.get("to", None)
         interval = request.query_params.get("interval","").lower()
         
+        intervals = {"d1": {"delta": timedelta(days=30),"offset": "D"},
+                     "h4": {"delta": timedelta(hours=24*6),"offset": "4H"},
+                     "h": {"delta": timedelta(hours=24*3),"offset": "H"},
+                     "m5": {"delta": timedelta(minutes=24*60),"offset": "5T"},
+                     "m1": {"delta": timedelta(minutes=12*60), "offset": "T"}}
 
-        if interval == "d1":
-            now = timezone.now().date()
-            start_time = now - timedelta(days=30)
-            trade_data = Trade.objects.filter(coin=coin,
-                                              created_at__gte=start_time)\
-                                      .values_list("created_at","price","amount")
+        interval = intervals.get(interval, intervals["h"])
 
-            df = pd.DataFrame(list(trade_data),
-                              columns=["time","price","volume"])
-            
-            df["open"] = df["price"]
-            df["high"] = df["price"]
-            df["low"] = df["price"]
-            df["close"] = df["price"]
-            
-            
-            df = df.resample("D", on="time")\
-                   .agg({"open": lambda x: x.iloc[0] if len(x) > 0 else np.nan,
-                         "high": lambda x: x.max() if len(x) > 0 else np.nan,
-                         "low": lambda x: x.min() if len(x) > 0 else np.nan,
-                         "close": lambda x: x.iloc[-1] if len(x) > 0 else np.nan,
-                         "volume": lambda x: x.sum()})
+        to_time = datetime.fromtimestamp(to, timezone.utc) if to else timezone.now()
+        from_time = to_time - interval["delta"]
 
-        elif interval == "h4":
-            now = timezone.now().replace(minute=0,second=0,microsecond=0)
-            start_time = now-timedelta(hours=24*6)
-            trade_data = Trade.objects.filter(coin=coin,
-                                              created_at__gte=start_time)\
-                                      .values_list("created_at","price","amount")
+        trade_data = Trade.objects.filter(coin=coin,
+                                          created_at__gte=from_time,
+                                          created_at__lt=to_time)\
+                                  .values_list("created_at","price","amount")
 
-            df = pd.DataFrame(list(trade_data),
-                              columns=["time","price","volume"])
+        df = pd.DataFrame(list(trade_data), columns=["time","price","volume"])
             
-            df["open"] = df["price"]
-            df["high"] = df["price"]
-            df["low"] = df["price"]
-            df["close"] = df["price"]
-            
-            
-            df = df.resample("4H", on="time")\
-                   .agg({"open": lambda x: x.iloc[0] if len(x) > 0 else np.nan,
-                         "high": lambda x: x.max() if len(x) > 0 else np.nan,
-                         "low": lambda x: x.min() if len(x) > 0 else np.nan,
-                         "close": lambda x: x.iloc[-1] if len(x) > 0 else np.nan,
-                         "volume": lambda x: x.sum()})
+        df["open"] = df["price"]
+        df["high"] = df["price"]
+        df["low"] = df["price"]
+        df["close"] = df["price"]
+                  
+        df = df.resample(interval["offset"], on="time")\
+               .agg({"open": lambda x: x.iloc[0] if len(x) > 0 else nan,
+                     "high": lambda x: x.max() if len(x) > 0 else nan,
+                     "low": lambda x: x.min() if len(x) > 0 else nan,
+                     "close": lambda x: x.iloc[-1] if len(x) > 0 else nan,
+                     "volume": lambda x: x.sum()})
 
-        elif interval == "m5":
-            now = timezone.now().replace(second=0,microsecond=0)
-            start_time = now-timedelta(minutes=24*60)
-            trade_data = Trade.objects.filter(coin=coin,
-                                              created_at__gte=start_time)\
-                                      .values_list("created_at","price","amount")
-
-            df = pd.DataFrame(list(trade_data),
-                              columns=["time","price","volume"])
-            
-            df["open"] = df["price"]
-            df["high"] = df["price"]
-            df["low"] = df["price"]
-            df["close"] = df["price"]
-            
-            
-            df = df.resample("5T", on="time")\
-                   .agg({"open": lambda x: x.iloc[0] if len(x) > 0 else np.nan,
-                         "high": lambda x: x.max() if len(x) > 0 else np.nan,
-                         "low": lambda x: x.min() if len(x) > 0 else np.nan,
-                         "close": lambda x: x.iloc[-1] if len(x) > 0 else np.nan,
-                         "volume": lambda x: x.sum()})
-
-        elif interval == "m1":
-            now = timezone.now().replace(second=0,microsecond=0)
-            start_time = now-timedelta(minutes=12*60)
-            trade_data = Trade.objects.filter(coin=coin,
-                                              created_at__gte=start_time)\
-                                      .values_list("created_at","price","amount")
-
-            df = pd.DataFrame(list(trade_data),
-                              columns=["time","price","volume"])
-            
-            df["open"] = df["price"]
-            df["high"] = df["price"]
-            df["low"] = df["price"]
-            df["close"] = df["price"]
-            
-            
-            df = df.resample("T", on="time")\
-                   .agg({"open": lambda x: x.iloc[0] if len(x) > 0 else np.nan,
-                         "high": lambda x: x.max() if len(x) > 0 else np.nan,
-                         "low": lambda x: x.min() if len(x) > 0 else np.nan,
-                         "close": lambda x: x.iloc[-1] if len(x) > 0 else np.nan,
-                         "volume": lambda x: x.sum()})
-            
-        else:
-            now = timezone.now().replace(minute=0,second=0,microsecond=0)
-            start_time = now-timedelta(hours=24*3)
-            trade_data = Trade.objects.filter(coin=coin,
-                                              created_at__gte=start_time)\
-                                      .values_list("created_at","price","amount")
-
-            df = pd.DataFrame(list(trade_data),
-                              columns=["time","price","volume"])
-            
-            df["open"] = df["price"]
-            df["high"] = df["price"]
-            df["low"] = df["price"]
-            df["close"] = df["price"]
-            
-            
-            df = df.resample("H", on="time")\
-                   .agg({"open": lambda x: x.iloc[0] if len(x) > 0 else np.nan,
-                         "high": lambda x: x.max() if len(x) > 0 else np.nan,
-                         "low": lambda x: x.min() if len(x) > 0 else np.nan,
-                         "close": lambda x: x.iloc[-1] if len(x) > 0 else np.nan,
-                         "volume": lambda x: x.sum()})
-            
         df = df.reset_index()    
         df = df.dropna()
 
