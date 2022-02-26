@@ -7,7 +7,7 @@ from channels.generic.websocket import WebsocketConsumer
 class ExchangeWebsocket(WebsocketConsumer):
     def connect(self):
         self.groups = []
-        self.connect()
+        self.accept()
 
     def disconnect(self, close_code):
         for group in self.groups:
@@ -15,9 +15,9 @@ class ExchangeWebsocket(WebsocketConsumer):
                 group,
                 self.channel_name
             )
-    
-    def receive(self, message):
-        message = json.loads(message)
+
+    def receive(self, text_data):
+        message = json.loads(text_data)
 
         if message["action"] == "subscribe":
             if message["group"] == "tickers":

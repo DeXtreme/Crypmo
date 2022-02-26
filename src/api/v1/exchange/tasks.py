@@ -37,9 +37,9 @@ def ticker():
     serializer = TickerSerializer(pairs, many=True)
     data = serializer.data
     
-    async_to_sync(get_channel_layer.group_send)(
+    async_to_sync(get_channel_layer().group_send)(
         "tickers", 
-        data
+        {"group":"tickers","data":data}
     )    
 
 @app.task
