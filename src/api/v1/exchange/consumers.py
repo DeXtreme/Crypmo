@@ -57,5 +57,7 @@ class ExchangeWebsocket(WebsocketConsumer):
 
     def broadcast(self, event):
         data = event["data"]
-        self.send(text_data=json.dumps(data))
+        message = {"group":"tickers", "data": data}
+        self.send(text_data=json.dumps(message))
+
 

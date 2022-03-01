@@ -18,28 +18,31 @@ def setupTicker(sender,**kwargs):
 @app.task
 def ticker():
     trades_today = Trade.objects.filter(coin=OuterRef("id"),
-                                        created_at__date=timezone.now())
+                                            created_at__date=timezone.now())
 
-    first_trade = Subquery(trades_today.values("price")[:1]) 
+    first_price_today = Subquery(trades_today.values("price")[:1]) 
 
-    volume = Subquery(trades_today.values("coin")\
-                                  .annotate(volume=Sum("amount"))\
-                                  .values("volume"))
+    volume_today = Subquery(trades_today.values("coin")\
+                                    .annotate(volume=Sum("amount"))\
+                                    .values("volume"))
 
-    last_trade = Subquery(Trade.objects.filter(coin=OuterRef("id"))\
-                                       .order_by("-created_at")
-                                       .values("price")[:1])
+    last_price = Subquery(Trade.objects.filter(coin=OuterRef("id"))\
+                                        .order_by("-created_at")
+                                        .values("price")[:1])
     
-    pairs = Coin.objects.annotate(price=last_trade,
-                                  first=first_trade,
-                                  volume=volume)
+    pairs = Coin.objects.annotate(last_price=last_price,
+                                  first_price_today=first_price_today,
+                                  volume_today=volume_today)
     
     serializer = TickerSerializer(pairs, many=True)
     data = serializer.data
     
-    async_to_sync(get_channel_layer().group_send)(
-        "tickers", 
-        {"group":"tickers","data":data}
+    async_to_sync(get_channel_layer().group_send)("tickers", 
+        {
+            "type": "broadcast",
+            "group": "tickers",
+            "data": data
+        }
     )    
 
 @app.task
@@ -53,7 +56,7 @@ def ticker_kline(coin):
     from_time = timezone.now() - timedelta(days=1)
     trade_data = Trade.objects.filter(coin=coin,
                                       created_at__gte=from_time)\
-                                .values_list("created_at","price","amount")
+                              .values_list("created_at","price","amount")
 
     df = pd.DataFrame(list(trade_data), columns=["time","price","volume"])
         

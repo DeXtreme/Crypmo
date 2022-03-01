@@ -45,16 +45,16 @@ class TickerSerializer(serializers.Serializer):
     change = serializers.SerializerMethodField()
 
     def get_change(self, obj):
-        if(obj.price and obj.first):
-            return ((obj.price-obj.first)/obj.first) * 100
+        if(obj.last_price and obj.first_price_today):
+            return ((obj.last_price-obj.first_price_today)/obj.first_price_today) * 100
 
         return 0
     
     def get_price(self, obj):
-        return obj.price if obj.price else 0
+        return obj.last_price if obj.last_price else 0
 
     def get_volume(self, obj):
-        return obj.volume if obj.volume else 0
+        return obj.volume_today if obj.volume_today else 0
 
     
 class OrderSerializer(serializers.ModelSerializer):

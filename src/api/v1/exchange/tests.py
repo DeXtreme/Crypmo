@@ -1,12 +1,18 @@
-import pandas as pd
+from unittest.mock import patch
+from django.test import TestCase
 from django.urls import reverse
-from django.utils import dateparse, timezone
+from django.utils import dateparse
 from rest_framework.test import APITestCase
+from asgiref.sync import sync_to_async
 from django.contrib.auth.models import User
+from channels.testing import WebsocketCommunicator
 
 from v1.accounts.models import Account
 from .models import *
 from .serializers import *
+from .tasks import *
+from .consumers import ExchangeWebsocket
+
 
 class SerializersTestCase(APITestCase):
 
@@ -25,6 +31,7 @@ class SerializersTestCase(APITestCase):
         cls.trade = Trade.objects.create(account=cls.account, coin=cls.coin, 
                                          position=Order.Positions.BUY, amount=100,price=1)
     
+
     def test_coin_serializer(self):
         serializer = CoinSerializer(self.coin)
         data = serializer.data
@@ -181,8 +188,49 @@ class ExchangeViewTestCase(APITestCase):
         self.assertEqual(dateparse.parse_datetime(data[0]["time"]),
                          self.trade_2.created_at.replace(hour=0,minute=0,second=0,microsecond=0))
 
-    
+class ExchangeWebsocketTestCase(TestCase):
 
+    @patch("v1.exchange.tasks.Coin.objects.annotate")
+    async def test_ticker_feed(self, annotate):
+        communicator = WebsocketCommunicator(ExchangeWebsocket.as_asgi(),"/")
+        connected, _ = await communicator.connect()
+        self.assertTrue(connected)
+
+        await communicator.send_json_to(
+            {"action": "subscribe", "group": "tickers"}
+        )
+
+        class TestPair:
+            def __init__(self, id, ticker, last_price, first_price_today, volume_today):
+                self.id = id
+                self.ticker = ticker
+                self.last_price = last_price
+                self.first_price_today = first_price_today
+                self.volume_today = volume_today
+
+            def calculate_change(self):
+                delta = self.last_price-self.first_price_today
+                change = delta/self.first_price_today
+                change *= 100
+                return change
+
+        test_pair = TestPair(1,"ADA", 1.2, 1.4, 100)
+        annotate.return_value= [test_pair]
+
+        await sync_to_async(ticker)()
+        
+        response = await communicator.receive_json_from(timeout=10)
+
+        self.assertIn("group", response)
+        self.assertIn("data", response)
+        self.assertEqual(len(response["data"]), 1)
+        self.assertEqual(response["data"][0]["id"], test_pair.id)
+        self.assertEqual(response["data"][0]["ticker"], test_pair.ticker)
+        self.assertEqual(response["data"][0]["price"], test_pair.last_price)
+        self.assertEqual(response["data"][0]["volume"], test_pair.volume_today)
+        self.assertEqual(response["data"][0]["change"], test_pair.calculate_change())
+        
+        await communicator.disconnect()
     
 
 
