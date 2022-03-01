@@ -1,13 +1,13 @@
 import socket from "./APISocket";
-import Provider from "./Provider";
+import context from "./context";
 export { useTickers } from './hooks'; 
 
 
 export function APISocketProvider({children}){
     return(
-        <Provider value={socket}>
+        <context.Provider value={socket}>
             {children}
-        </Provider>
+        </context.Provider>
     )
 }
 
