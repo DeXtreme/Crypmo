@@ -52,7 +52,7 @@ class ExchangeView(GenericViewSet):
         
         intervals = {"d1": {"delta": timedelta(days=30),"offset": "D"},
                      "h4": {"delta": timedelta(hours=24*6),"offset": "4H"},
-                     "h": {"delta": timedelta(hours=24*3),"offset": "H"},
+                     "h1": {"delta": timedelta(hours=24*3),"offset": "H"},
                      "m5": {"delta": timedelta(minutes=24*60),"offset": "5T"},
                      "m1": {"delta": timedelta(minutes=12*60), "offset": "T"}}
 

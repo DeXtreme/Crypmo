@@ -32,7 +32,7 @@ function Pair({ticker, blockchain,
     let signedChange = (change > 0 ? "+" : "") + `${formatChange(change)}%`
 
     return(
-        <div className='grid auto-cols-fr grid-rows-1 p-4 hover:bg-secondary'>
+        <div className='grid auto-cols-fr grid-rows-1 p-4 hover:bg-secondary cursor-pointer'>
             <div className='col-start-1 flex items-center'>
                 <img src={`https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/svg/color/${ticker.toLowerCase()}.svg`} className='rounded-full w-9 h-9'/>
                 <div className='ml-2'>

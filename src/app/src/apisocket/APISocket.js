@@ -15,8 +15,6 @@ class APISocket{
             message = JSON.parse(message.data);
             switch(message.group){
                 case "tickers":
-                    console.log(this.subscriptions.ticker)
-                    console.log(Object.values(this.subscriptions.ticker))
                     Object.values(this.subscriptions.ticker).forEach(
                         (callback)=>callback(message.data));
                     break;

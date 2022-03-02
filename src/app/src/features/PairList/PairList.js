@@ -2,6 +2,8 @@
 import PropTypes from 'prop-types';
 import { useEffect, useState } from 'react';
 import { usePairs, useAPI } from '../../hooks';
+import { useTickers } from '../../apisocket';
+import { useNavigate } from 'react-router-dom';
 import {AiOutlineFileSearch} from 'react-icons/ai';
 
 import Pair from '../../components/Pair';
@@ -11,10 +13,13 @@ import * as cts from './constants';
 import { handleResponse } from './utils';
 
 function PairList({className}){
-    let {pairs, addPairs} = usePairs();
+    let {pairs, addPairs, updatePairs} = usePairs();
     let [loading, setLoading] = useState(true);
 
     let api = useAPI();
+    let tickers = useTickers();
+
+    let goTo = useNavigate();
 
     const loadPairs = async () => {
         setLoading(true);
@@ -48,6 +53,7 @@ function PairList({className}){
         let result = await api.get("exchange/", handleResponse);
         if(result){
             addPairs(result); 
+            tickers.subscribe("market", (data)=> updatePairs(data));
         }
         setLoading(false); 
     }
@@ -76,7 +82,9 @@ function PairList({className}){
                         24h Change
                     </div>
                 </div>
-                {Object.keys(pairs).map(ticker => <Pair ticker={ticker} key={pairs[ticker].id} {...pairs[ticker]}/>)}
+                {Object.keys(pairs).map(ticker => {
+                    <Pair onClick={goTo(`/exchange/pairs/${ticker}`)} ticker={ticker} 
+                     key={pairs[ticker].id} {...pairs[ticker]}/>})}
             </div>:
 
             (loading) ? 

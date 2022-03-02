@@ -49,7 +49,7 @@ def ticker():
 def ticker_kline(coin):
     intervals = {"d1": "D",
                  "h4": "4H",
-                 "h": "H",
+                 "h1": "H",
                  "m5": "5T",
                  "m1": "T"}
 
