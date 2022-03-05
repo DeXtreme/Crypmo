@@ -13,7 +13,7 @@ from .serializers import TickerSerializer
 
 @app.on_after_finalize.connect
 def setupTicker(sender,**kwargs):
-    sender.add_periodic_task(3.0, ticker.s(), name='ticker every second')
+    sender.add_periodic_task(1, ticker.s(), name='ticker every second')
 
 @app.task
 def ticker():

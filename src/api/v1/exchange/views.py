@@ -5,6 +5,7 @@ from django.utils import timezone
 from django.db.models import OuterRef, Subquery, Sum
 from rest_framework.viewsets import GenericViewSet
 from rest_framework.response import Response
+from rest_framework.decorators import action
 
 
 from .serializers import PairSerializer
@@ -17,7 +18,7 @@ class ExchangeView(GenericViewSet):
     queryset = Coin.objects.all()
     
     def get_permissions(self):
-        if(self.action in ["list","retrieve"]):
+        if(self.action in ["list","retrieve","candles"]):
             return []
         return super().get_permissions()
 
@@ -43,8 +44,33 @@ class ExchangeView(GenericViewSet):
         data = serializer.data
         return Response(data)
     
+    def retrieve(self,request,ticker,*args,**kwargs):
     
-    def retrieve(self,request,*args,**kwargs):
+        trades_today = Trade.objects.filter(coin=OuterRef("id"),
+                                            created_at__date=timezone.now())
+
+        first_price_today = Subquery(trades_today.values("price")[:1]) 
+
+        volume_today = Subquery(trades_today.values("coin")\
+                                      .annotate(volume=Sum("amount"))\
+                                      .values("volume"))
+
+        last_price = Subquery(Trade.objects.filter(coin=OuterRef("id"))\
+                                           .order_by("-created_at")
+                                           .values("price")[:1])
+        
+        pair = Coin.objects.filter(ticker=ticker)\
+                           .annotate(last_price=last_price,
+                                     first_price_today=first_price_today,
+                                     volume_today=volume_today).get()
+
+        serializer = PairSerializer(pair)
+        data = serializer.data
+        return Response(data)
+
+    
+    @action(methods=["GET"], detail=True)
+    def candles(self,request,*args,**kwargs):
 
         coin = self.get_object()
         to = request.query_params.get("to", None)
@@ -56,7 +82,7 @@ class ExchangeView(GenericViewSet):
                      "m5": {"delta": timedelta(minutes=24*60),"offset": "5T"},
                      "m1": {"delta": timedelta(minutes=12*60), "offset": "T"}}
 
-        interval = intervals.get(interval, intervals["h"])
+        interval = intervals.get(interval, intervals["h1"])
 
         to_time = datetime.fromtimestamp(to, timezone.utc) if to else timezone.now()
         from_time = to_time - interval["delta"]

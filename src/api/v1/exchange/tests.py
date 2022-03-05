@@ -125,12 +125,25 @@ class ExchangeViewTestCase(APITestCase):
         self.assertEqual(data[0]["volume"], self.trade_1.amount + self.trade_2.amount)
         self.assertEqual(data[0]["change"], ((self.trade_2.price-self.trade_1.price)/self.trade_1.price)*100)
 
-    def test_get_coin_price_history_default(self):
+    
+    def test_retrieve_coin(self):
         url = reverse("exchange:exchange-detail",args=["TC"])
 
         response = self.client.get(url)
         data = response.json()
 
+        self.assertEqual(data["name"], self.coin.name)
+        self.assertEqual(data["ticker"], self.coin.ticker)
+        self.assertEqual(data["blockchain"], self.coin.blockchain.name)
+        self.assertEqual(data["price"], self.trade_2.price)
+        self.assertEqual(data["volume"], self.trade_1.amount + self.trade_2.amount)
+        self.assertEqual(data["change"], ((self.trade_2.price-self.trade_1.price)/self.trade_1.price)*100)
+
+    def test_get_coin_price_history_default(self):
+        url = reverse("exchange:exchange-candles",args=["TC"])
+
+        response = self.client.get(url)
+        data = response.json()
 
         self.assertEqual(len(data),1)
         self.assertIn("time",data[0])
@@ -148,7 +161,7 @@ class ExchangeViewTestCase(APITestCase):
 
     
     def test_get_coin_price_history_m1(self):
-        url = reverse("exchange:exchange-detail",args=["TC"])
+        url = reverse("exchange:exchange-candles",args=["TC"])
 
         response = self.client.get(url,{"interval":"m1"})
         data = response.json()
@@ -168,7 +181,7 @@ class ExchangeViewTestCase(APITestCase):
         self.assertEqual(dateparse.parse_datetime(data[0]["time"]),self.trade_2.created_at.replace(second=0,microsecond=0))
     
     def test_get_coin_price_history_d1(self):
-        url = reverse("exchange:exchange-detail",args=["TC"])
+        url = reverse("exchange:exchange-candles",args=["TC"])
 
         response = self.client.get(url,{"interval":"D1"})
         data = response.json()
