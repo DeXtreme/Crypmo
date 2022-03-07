@@ -145,19 +145,21 @@ class ExchangeViewTestCase(APITestCase):
         response = self.client.get(url)
         data = response.json()
 
-        self.assertEqual(len(data),1)
-        self.assertIn("time",data[0])
-        self.assertIn("open",data[0])
-        self.assertIn("high",data[0])
-        self.assertIn("low",data[0])
-        self.assertIn("close",data[0])
-        self.assertIn("volume",data[0])
-        self.assertEqual(data[0]["open"],self.trade_1.price)
-        self.assertEqual(data[0]["high"],self.trade_2.price)
-        self.assertEqual(data[0]["low"],self.trade_1.price)
-        self.assertEqual(data[0]["close"],self.trade_2.price)
-        self.assertEqual(data[0]["volume"],self.trade_1.amount+self.trade_2.amount)
-        self.assertEqual(dateparse.parse_datetime(data[0]["time"]),self.trade_2.created_at.replace(minute=0,second=0,microsecond=0))
+        self.assertEqual(len(data["candles"]),1)
+        self.assertIn("interval", data)
+        self.assertIn("open",data["candles"][0])
+        self.assertIn("high",data["candles"][0])
+        self.assertIn("low",data["candles"][0])
+        self.assertIn("close",data["candles"][0])
+        self.assertIn("volume",data["candles"][0])
+        self.assertEqual(data["interval"], "h1")
+        self.assertEqual(data["candles"][0]["open"],self.trade_1.price)
+        self.assertEqual(data["candles"][0]["high"],self.trade_2.price)
+        self.assertEqual(data["candles"][0]["low"],self.trade_1.price)
+        self.assertEqual(data["candles"][0]["close"],self.trade_2.price)
+        self.assertEqual(data["candles"][0]["volume"],self.trade_1.amount+self.trade_2.amount)
+        self.assertEqual(dateparse.parse_datetime(data["candles"][0]["time"]),
+                         self.trade_2.created_at.replace(minute=0,second=0,microsecond=0))
 
     
     def test_get_coin_price_history_m1(self):
@@ -167,18 +169,21 @@ class ExchangeViewTestCase(APITestCase):
         data = response.json()
 
 
-        self.assertEqual(len(data),1)
-        self.assertIn("open",data[0])
-        self.assertIn("high",data[0])
-        self.assertIn("low",data[0])
-        self.assertIn("close",data[0])
-        self.assertIn("volume",data[0])
-        self.assertEqual(data[0]["open"],self.trade_1.price)
-        self.assertEqual(data[0]["high"],self.trade_2.price)
-        self.assertEqual(data[0]["low"],self.trade_1.price)
-        self.assertEqual(data[0]["close"],self.trade_2.price)
-        self.assertEqual(data[0]["volume"],self.trade_1.amount+self.trade_2.amount)
-        self.assertEqual(dateparse.parse_datetime(data[0]["time"]),self.trade_2.created_at.replace(second=0,microsecond=0))
+        self.assertEqual(len(data["candles"]),1)
+        self.assertIn("interval", data)
+        self.assertIn("open",data["candles"][0])
+        self.assertIn("high",data["candles"][0])
+        self.assertIn("low",data["candles"][0])
+        self.assertIn("close",data["candles"][0])
+        self.assertIn("volume",data["candles"][0])
+        self.assertEqual(data["interval"], "m1")
+        self.assertEqual(data["candles"][0]["open"],self.trade_1.price)
+        self.assertEqual(data["candles"][0]["high"],self.trade_2.price)
+        self.assertEqual(data["candles"][0]["low"],self.trade_1.price)
+        self.assertEqual(data["candles"][0]["close"],self.trade_2.price)
+        self.assertEqual(data["candles"][0]["volume"],self.trade_1.amount+self.trade_2.amount)
+        self.assertEqual(dateparse.parse_datetime(data["candles"][0]["time"]),
+                         self.trade_2.created_at.replace(second=0,microsecond=0))
     
     def test_get_coin_price_history_d1(self):
         url = reverse("exchange:exchange-candles",args=["TC"])
@@ -187,18 +192,20 @@ class ExchangeViewTestCase(APITestCase):
         data = response.json()
 
 
-        self.assertEqual(len(data),1)
-        self.assertIn("open",data[0])
-        self.assertIn("high",data[0])
-        self.assertIn("low",data[0])
-        self.assertIn("close",data[0])
-        self.assertIn("volume",data[0])
-        self.assertEqual(data[0]["open"],self.trade_1.price)
-        self.assertEqual(data[0]["high"],self.trade_2.price)
-        self.assertEqual(data[0]["low"],self.trade_1.price)
-        self.assertEqual(data[0]["close"],self.trade_2.price)
-        self.assertEqual(data[0]["volume"],self.trade_1.amount+self.trade_2.amount)
-        self.assertEqual(dateparse.parse_datetime(data[0]["time"]),
+        self.assertEqual(len(data["candles"]),1)
+        self.assertIn("interval", data)
+        self.assertIn("open",data["candles"][0])
+        self.assertIn("high",data["candles"][0])
+        self.assertIn("low",data["candles"][0])
+        self.assertIn("close",data["candles"][0])
+        self.assertIn("volume",data["candles"][0])
+        self.assertEqual(data["interval"], "d1")
+        self.assertEqual(data["candles"][0]["open"],self.trade_1.price)
+        self.assertEqual(data["candles"][0]["high"],self.trade_2.price)
+        self.assertEqual(data["candles"][0]["low"],self.trade_1.price)
+        self.assertEqual(data["candles"][0]["close"],self.trade_2.price)
+        self.assertEqual(data["candles"][0]["volume"],self.trade_1.amount+self.trade_2.amount)
+        self.assertEqual(dateparse.parse_datetime(data["candles"][0]["time"]),
                          self.trade_2.created_at.replace(hour=0,minute=0,second=0,microsecond=0))
 
 class ExchangeWebsocketTestCase(TestCase):
@@ -232,7 +239,7 @@ class ExchangeWebsocketTestCase(TestCase):
 
         await sync_to_async(ticker)()
         
-        response = await communicator.receive_json_from(timeout=10)
+        response = await communicator.receive_json_from(timeout=1)
 
         self.assertIn("group", response)
         self.assertIn("data", response)

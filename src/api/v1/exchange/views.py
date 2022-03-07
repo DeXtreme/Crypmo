@@ -74,7 +74,7 @@ class ExchangeView(GenericViewSet):
 
         coin = self.get_object()
         to = request.query_params.get("to", None)
-        interval = request.query_params.get("interval","").lower()
+        interval = request.query_params.get("interval",None)
         
         intervals = {"d1": {"delta": timedelta(days=30),"offset": "D"},
                      "h4": {"delta": timedelta(hours=24*6),"offset": "4H"},
@@ -82,10 +82,15 @@ class ExchangeView(GenericViewSet):
                      "m5": {"delta": timedelta(minutes=24*60),"offset": "5T"},
                      "m1": {"delta": timedelta(minutes=12*60), "offset": "T"}}
 
-        interval = intervals.get(interval, intervals["h1"])
+        if interval:
+            interval = interval.lower()
+        else:
+            interval = "h1"
+
+        interval_data = intervals.get(interval, intervals["h1"])
 
         to_time = datetime.fromtimestamp(to, timezone.utc) if to else timezone.now()
-        from_time = to_time - interval["delta"]
+        from_time = to_time - interval_data["delta"]
 
         trade_data = Trade.objects.filter(coin=coin,
                                           created_at__gte=from_time,
@@ -99,7 +104,7 @@ class ExchangeView(GenericViewSet):
         df["low"] = df["price"]
         df["close"] = df["price"]
                   
-        df = df.resample(interval["offset"], on="time")\
+        df = df.resample(interval_data["offset"], on="time")\
                .agg({"open": lambda x: x.iloc[0] if len(x) > 0 else nan,
                      "high": lambda x: x.max() if len(x) > 0 else nan,
                      "low": lambda x: x.min() if len(x) > 0 else nan,
@@ -108,7 +113,9 @@ class ExchangeView(GenericViewSet):
 
         df = df.reset_index()    
         df = df.dropna()
+        response = {"interval": interval,
+                    "candles":df.to_dict('records')}
 
-        return Response(df.to_dict('records'))
+        return Response(response)
     
         
