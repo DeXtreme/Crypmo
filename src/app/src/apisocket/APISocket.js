@@ -3,9 +3,9 @@ import { WEBSOCKET_URL } from "./constants";
 class APISocket{
     constructor(){
         this.ws = null;
-        this.subscriptions = {ticker:{}, wallet: null, orders: null}   
+        this.subscriptions = {ticker:{}, kline: null, wallet: null, orders: null}   
         this.pending = {}
-        this.connect(); 
+        //this.connect(); 
     }
 
     connect(){ 
@@ -22,7 +22,10 @@ class APISocket{
                     break;
                 case "orders":
                     break
-                default:  
+                default:
+                    if(message.group in this.subscriptions.kline){
+                        this.subscriptions.kline[message.group](message.data)
+                    }
             }
         }
 
@@ -57,6 +60,29 @@ class APISocket{
     isSubscribedTickers(view){
         return view in this.subscriptions.ticker;
     }
+
+
+    subscribeKline(pair_id,interval,callback){
+        this._createPendingEvent("kline", "kline", ()=>{
+            let group = `${pair_id}_kline_${interval}`;
+            this.ws.send(JSON.stringify({action: "subscribe",
+                group}));
+            this.subscriptions.kline = {group:callback};
+        })
+     }
+ 
+     unsubscribeKline(pair_id,interval){
+         this._createPendingEvent("kline", "kline", ()=>{
+            delete this.subscriptions.kline;
+            this.ws.send(JSON.stringify({action: "unsubscribe",
+                group:`${pair_id}_kline_${interval}`}))
+         })
+     }
+ 
+     isSubscribedKline(){
+         return !!this.subscriptions.kline;
+     }
+
 
     _createPendingEvent(view, group, event){
         const event_id = setInterval(()=>{
