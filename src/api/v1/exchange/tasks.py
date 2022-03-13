@@ -45,8 +45,10 @@ def ticker():
         }
     )    
 
+
+"""
 @app.task
-def ticker_kline(coin):
+def ticker_kline(coin_id):
     intervals = {"d1": "D",
                  "h4": "4H",
                  "h1": "H",
@@ -54,7 +56,7 @@ def ticker_kline(coin):
                  "m1": "T"}
 
     from_time = timezone.now() - timedelta(days=1)
-    trade_data = Trade.objects.filter(coin=coin,
+    trade_data = Trade.objects.filter(coin=coin_id,
                                       created_at__gte=from_time)\
                               .values_list("created_at","price","amount")
 
@@ -77,11 +79,12 @@ def ticker_kline(coin):
         df2 = df2.reset_index()    
         df2 = df2.dropna()
 
-        data = df2.to_dict('records')
+        data = {"interval":interval, "candle": df2.to_dict('records')[-1]}
 
-        group_name = f"{coin}_kline_{interval}"
+        group_name = f"{coin_id}_kline_{interval}"
 
         async_to_sync(get_channel_layer.group_send)(
             group_name, 
             data
         )  
+"""

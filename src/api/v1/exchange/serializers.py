@@ -1,3 +1,4 @@
+from numpy import source
 from rest_framework import serializers
 
 from .models import (
@@ -5,7 +6,8 @@ from .models import (
     Order,
     Trade,
     CoinBalance,
-    FiatBalance
+    FiatBalance,
+    Candle
 )
 
 class CoinSerializer(serializers.ModelSerializer):
@@ -56,6 +58,10 @@ class TickerSerializer(serializers.Serializer):
     def get_volume(self, obj):
         return obj.volume_today if obj.volume_today else 0
 
+class CandleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Candle
+        fields = ["id","open","high","low","close","volume","time"]
     
 class OrderSerializer(serializers.ModelSerializer):
      coin = CoinSerializer()
