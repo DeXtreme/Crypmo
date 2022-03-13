@@ -1,19 +1,22 @@
 import { Routes,Route,BrowserRouter as Router } from 'react-router-dom';
 import NotFound from './pages/NotFound';
 import Alert from './components/Alert';
+
 import Home from './pages/Home';
+
 import Register from './pages/Register';
 import LogIn from './pages/LogIn';
 import Verify from './pages/Verify';
 import ResetPassword from './pages/ResetPassword';
 import ForgotPassword from './pages/ForgotPassword';
+
 import Exchange from './pages/Exchange';
 import Market from './pages/Exchange/Market';
+import Pair from './pages/Exchange/Pair';
 
 import './App.css';
 
 function App() {
-  //TODO: handle 404
   return (
     <>
       <Alert />
@@ -28,6 +31,7 @@ function App() {
           <Route path="exchange" element={<Exchange />}>
             <Route path="" element={<Market />} />
             <Route path="markets" element={<Market />} />
+            <Route path=":ticker" element={<Pair />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>

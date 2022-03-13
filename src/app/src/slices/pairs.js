@@ -12,6 +12,7 @@ const pairs = createSlice({
 
                 pairs[ticker] = {id,name,blockchain,price,volume,change};
             })
+
             return {...state, ...pairs}
         },
         updatePairs(state,action){

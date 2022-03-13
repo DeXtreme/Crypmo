@@ -7,6 +7,7 @@ function Chart({className,isCandles,data,loadPrevious}){
     let chartRef = useRef(); 
 
     let [chart, setChart] = useState(null);
+    
     let [candleSeries, setCandleSeries] = useState(null);
     let [areaSeries, setAreaSeries] = useState(null);
     let [volumeSeries, setVolumeSeries] = useState(null);
@@ -32,6 +33,10 @@ function Chart({className,isCandles,data,loadPrevious}){
                     color: 'rgba(42, 46, 57, 0.6)',
                 },
             },
+            timeScale : {
+                timeVisible: true,
+                secondsVisible: false
+            }
         });
 
         let candleSeries = chart.addCandlestickSeries();
@@ -73,31 +78,12 @@ function Chart({className,isCandles,data,loadPrevious}){
             }
         })
 
-        if(isCandles){
-            candleSeries.setData(data)
-        }else{
-            areaSeries.setData(data.map(candle=>{
-                return {time:candle.time,value:candle.close}}))
-        }
-
-        volumeSeries.setData(data.map(candle=>{
-            return {time:candle.time, value: candle.amount, 
-                    color: (candle.close > candle.open ? 'rgba(0, 150, 136, 0.8)' : 'rgba(255,82,82, 0.8)')}
-        }));
-
         chart.timeScale().fitContent();
-
-        chart.timeScale().subscribeVisibleLogicalRangeChange(({from})=>{
-            if(from && from%10==0){
-                loadPrevious();
-            }
-        });
 
         const resizeHandler = ()=>{
             let width = chartRef.current.clientWidth
             let height = chartRef.current.clientHeight
             chart.resize(width, height);
-            chart.timeScale().fitContent();
         }
 
         window.addEventListener("resize", resizeHandler);
@@ -107,28 +93,54 @@ function Chart({className,isCandles,data,loadPrevious}){
         setCandleSeries(candleSeries);
         setVolumeSeries(volumeSeries);
 
+        console.log("chart start")
     },[])
 
    useEffect(()=>{
-       if(chart){
+        console.log("data", data)
+
+        if(chart){
+            console.log("unsub");
+            chart.timeScale().unsubscribeVisibleLogicalRangeChange(rangeHandler);
+
             if(isCandles){
                 areaSeries.setData([]);
-                candleSeries.setData(data);
+                let candles = data.map(candle=>{ 
+                    return {open: candle.open,high:candle.high,low:candle.low, close:candle.close,time:Date.parse(candle.time)/1000}
+                })
+                candles.reverse();
+                candleSeries.setData(candles);
             }else{
                 candleSeries.setData([]);
-                areaSeries.setData(data.map(candle=>{
-                    return {time:candle.time,value:candle.close}}));
+                let values = data.map(candle=>{ 
+                    return {time:Date.parse(candle.time)/1000, value:candle.close}
+                })
+                values.reverse();
+                areaSeries.setData(values);
             }
 
-            volumeSeries.setData(data.map(candle=>{
-                return {time:candle.time, value: candle.amount, 
-                        color: (candle.close>candle.open ? 'rgba(0, 150, 136, 0.8)' : 'rgba(255,82,82, 0.8)')}
-            }));
+            let volumes = data.map(candle=>{
+                return {time:Date.parse(candle.time)/1000, value:candle.volume,
+                    color: (candle.close>candle.open ? 'rgba(0, 150, 136, 0.8)' : 'rgba(255,82,82, 0.8)')}
+            })
+            volumes.reverse();
+            volumeSeries.setData(volumes);
 
-            chart.timeScale().fitContent();
+            console.log("subbed")
+            chart.timeScale().subscribeVisibleLogicalRangeChange(rangeHandler);
+            //chart.timeScale().fitContent();
         }
-    },[data])
+    },[data, isCandles])
 
+    const rangeHandler = (range)=>{
+        if(range && range.to === 1 && data.length>2 && chart){
+
+            console.log("unsub");
+            chart.timeScale().unsubscribeVisibleLogicalRangeChange(rangeHandler);
+            console.log("loading prev")
+            loadPrevious();
+        }
+    }
 
     return(
         <div className={className}>
@@ -141,7 +153,7 @@ function Chart({className,isCandles,data,loadPrevious}){
                             <p className="text-xs">Volume {legendVolume}</p>
                         </>:
                         <>
-                            <p>{legendPrice} Volume {legendVolume}</p>
+                            <p className="text-xs" >{legendPrice} Volume {legendVolume}</p>
                         </>}
                     </div>
                 </div>
@@ -153,7 +165,7 @@ function Chart({className,isCandles,data,loadPrevious}){
 Chart.propTypes = {
     className: PropTypes.string,
     isCandles: PropTypes.bool,
-
+    data: PropTypes.array,
 }
 
 Chart.defaultProps = {

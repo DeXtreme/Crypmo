@@ -12,3 +12,15 @@ export function useTickers(){
         unsubscribe: (view) => socket.unsubscribeTickers(view)
     })
 }
+
+export function useKline(){
+    let socket = useContext(context);
+
+    return({
+        subscribe: (pair_id,interval,callback) =>{
+            socket.subscribeKline(pair_id,interval,callback)
+        },
+        isSubscribed: () => socket.isSubscribedKline(),
+        unsubscribe: () => socket.unsubscribeKline()
+    })
+}

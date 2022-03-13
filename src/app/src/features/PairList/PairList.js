@@ -84,7 +84,7 @@ function PairList({className}){
                 </div>
                 {Object.keys(pairs).map(ticker => {
                     return (
-                        <Pair onClick={()=>goTo(`/exchange/pairs/${ticker}`)} ticker={ticker} 
+                        <Pair onClick={()=>goTo(`/exchange/${ticker}`)} ticker={ticker} 
                         key={pairs[ticker].id} {...pairs[ticker]}/>
                     )
                 })}
