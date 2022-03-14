@@ -2,13 +2,13 @@ import datetime
 from django.utils import timezone
 from django.db.models import OuterRef, Subquery, Sum
 from rest_framework.viewsets import GenericViewSet
+
 from rest_framework.response import Response
 from rest_framework.decorators import action
 
 
 from .serializers import PairSerializer, CandleSerializer
 from .models import Coin, Trade, Candle
-
 
 class ExchangeView(GenericViewSet):
 
@@ -40,6 +40,7 @@ class ExchangeView(GenericViewSet):
         
         serializer = PairSerializer(pairs, many=True)
         data = serializer.data
+
         return Response(data)
     
     def retrieve(self,request,ticker,*args,**kwargs):

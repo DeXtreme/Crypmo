@@ -34,8 +34,6 @@ class AccountSerializerTestCase(TestCase):
         self.assertEqual(data["id"], str(self.test_account.id))
         self.assertIn("username", data)
         self.assertEqual(data["username"], self.test_account.user.username)
-        self.assertIn("balance", data)
-        self.assertEqual(float(data["balance"]), self.test_account.balance)
     
 class RegisterSerializerTestCase(TestCase):
 
@@ -117,7 +115,7 @@ class AccountView(TestCase):
 
 
     def test_account_create(self):
-        url = reverse("accounts:account-create")
+        url = reverse("accounts:account-list")
 
         response = self.client.post(url,self.test_data)
         self.assertEqual(response.status_code, status.HTTP_202_ACCEPTED)
@@ -126,20 +124,20 @@ class AccountView(TestCase):
         
         self.assertGreater(len(verify_token), 0)
 
-        url = reverse("accounts:account-verify",args=[verify_token])
+        url = reverse("accounts:verify",args=[verify_token])
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         
         
     def test_account_password_reset(self):
-        url = reverse("accounts:account-forgot")
+        url = reverse("accounts:forgot")
 
         response = self.client.post(url, {"email":"testuser2@gmail.com"})
         self.assertEqual(response.status_code, status.HTTP_202_ACCEPTED)
         
         reset_token =  mail.outbox[0].body
 
-        url = reverse("accounts:account-password-reset",args=[reset_token])
+        url = reverse("accounts:reset",args=[reset_token])
 
         response = self.client.post(url, {"password":"Testuser1"})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -148,14 +146,14 @@ class AccountView(TestCase):
         self.assertTrue(user.check_password("Testuser1"))
 
     def test_account_password_reset_token_check(self):
-        url = reverse("accounts:account-forgot")
+        url = reverse("accounts:forgot")
 
         response = self.client.post(url, {"email":"testuser2@gmail.com"})
         self.assertEqual(response.status_code, status.HTTP_202_ACCEPTED)
         
         reset_token =  mail.outbox[0].body
 
-        url = reverse("accounts:account-password-reset",args=[reset_token])
+        url = reverse("accounts:reset",args=[reset_token])
         
         response = self.client.get(url)
 

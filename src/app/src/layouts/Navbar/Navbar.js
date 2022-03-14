@@ -1,9 +1,12 @@
 import PropTypes from 'prop-types';
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import {RiBarChart2Fill} from 'react-icons/ri';
-import { FaWallet, FaChevronDown } from 'react-icons/fa';
-import { MdSwapVert } from 'react-icons/md';
+
+import MarketIcon from '../../components/MarketIcon';
+import TradeIcon from '../../components/TradeIcon';
+import WalletIcon from '../../components/WalletIcon';
+
+import { FaChevronDown } from 'react-icons/fa';
 import { BiLogOut } from 'react-icons/bi';
 
 import { useAccount } from '../../hooks';
@@ -22,7 +25,8 @@ function Navbar({showMenu,fixed}){
 
     return(
         <>
-            <div className={`container flex items-center px-8 py-4 ${fixed ? 'fixed left-0 right-0': ""} z-50`}>
+            <div className={`container flex items-center px-8 py-4 z-50
+             ${fixed ? 'fixed left-0 right-0': ""}`}>
                 <Link to="/">
                     <div className="flex flex-row items-center gap-3"> 
                         <img src={Logo} className="w-8 h-8" alt="logo"/>
@@ -31,24 +35,18 @@ function Navbar({showMenu,fixed}){
                 </Link>
                 {showMenu && 
                 <>
-                    <div className="fixed left-0 bottom-0 w-full bg-primary py-3 border-t-2 border-secondary
-                    flex justify-around items-baseline text-gray-400 
+                    <div className="fixed left-0 bottom-0 w-full bg-primary pt-2 border-t
+                    border-secondary rounded-xl flex justify-around items-baseline text-gray-400 
                     md:relative md:w-auto md:bg-transparent md:border-none md:text-white
-                    md:ml-16 md:gap-8">
-                        <Link to="exchange/markets" className={`transition-colors hover:text-accent
-                        ${(/\/exchange\/markets/ig.test(path)) && "text-accent"}`}>
-                            <RiBarChart2Fill className='m-auto text-2xl md:hidden'/>
-                            Markets
+                    md:ml-16 md:gap-8 md:pt-0">
+                        <Link to="/exchange/markets">
+                            <MarketIcon selected={/\/exchange\/markets/ig.test(path)} />
                         </Link>
-                        <Link to="exchange/trade" className={`transition-colors hover:text-accent
-                        ${(/\/exchange\/trade/ig.test(path)) && "text-accent"}`}>
-                            <MdSwapVert className='m-auto text-2xl md:hidden' />
-                            Trade
+                        <Link to="/exchange/trade">
+                            <TradeIcon selected={/\/exchange\/trade/ig.test(path)} /> 
                         </Link>
-                        <Link to="exchange/wallet" className={`transition-colors hover:text-accent
-                        ${(/\/exchange\/wallet/ig.test(path)) && "text-accent"}`}>
-                            <FaWallet className='m-auto text-2xl md:hidden' />
-                            Wallet
+                        <Link to="/exchange/wallet">
+                            <WalletIcon selected={/\/exchange\/wallet/ig.test(path)} />            
                         </Link>
                     </div>
                     { account.isLoggedIn ?

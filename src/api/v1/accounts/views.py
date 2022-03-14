@@ -6,9 +6,10 @@ from django.core.cache import cache
 from django.core.mail import send_mail
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.views import APIView
+from rest_framework.generics import GenericAPIView
 from rest_framework.viewsets import GenericViewSet
 from rest_framework.decorators import action 
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.mixins import (
     RetrieveModelMixin,
 )
@@ -23,7 +24,7 @@ from .serializers import (
 )
 from .models import Account
 
-class AccountView(GenericViewSet,
+class AccountViewSet(GenericViewSet,
                   RetrieveModelMixin):
     """Account model viewset"""
     
@@ -43,6 +44,12 @@ class AccountView(GenericViewSet,
     
 
     def create(self, request, *args, **kwargs):
+        """Registers new account details
+        
+        Registers the details of a new account in the cache
+        and sends a verification link to the email address
+        """
+
         serializer = self.get_serializer(data=request.data,)
         serializer.is_valid(raise_exception=True)
         data = serializer.data
@@ -54,10 +61,17 @@ class AccountView(GenericViewSet,
                   "noreply@crypmo.com",[data["email"]])
 
         return Response(status=status.HTTP_202_ACCEPTED)
+
+        
+class VerifyAccountView(APIView):
+    """ Verifies the email address of new accounts
     
-    @action(methods=["GET"], detail=True,
-            permission_classes=[], lookup_url_kwarg="verify_token")
-    def verify(self, request, verify_token, *args, **kwargs):
+    Creates a new account object when the email address is
+    verified via the verification link
+    """
+    permission_classes = []
+
+    def get(self, request, verify_token, *args, **kwargs):
         data = cache.get(verify_token)
         if data:
             user = User.objects.create_user(data["email"],password=data["password"])
@@ -66,11 +80,16 @@ class AccountView(GenericViewSet,
             return Response(status=status.HTTP_201_CREATED)
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
-    
-    @action(methods=["POST"], detail=False,
-            permission_classes=[], serializer_class=ForgotPasswordSerializer)
-    def forgot(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
+
+class ForgotPasswordView(APIView):
+    """Sends a reset password link to account email"""
+    permission_classes = []
+
+    def post(self, request, *args, **kwargs):
+        """Generates and sends a reset password link to the 
+        account email address if it exists"""
+
+        serializer = ForgotPasswordSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
         email = serializer.validated_data["email"]
@@ -87,11 +106,23 @@ class AccountView(GenericViewSet,
             pass
 
         return Response(status=status.HTTP_202_ACCEPTED)
-    
-    @action(methods=["POST"], detail=False,
-            permission_classes=[], serializer_class=ResetPasswordSerializer)
-    def reset(self, request, reset_token ,*args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
+
+class ResetPasswordView(APIView):
+    """Resets the account password"""
+
+    permission_classes= []
+
+    def get(self, request, reset_token, *args, **kwargs):
+        """Check if the reset token is still valid"""
+        email = cache.get(reset_token)
+        if email:
+            return Response(status=status.HTTP_200_OK)
+        else:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+    def post(self, request, reset_token, *args, **kwargs):
+        """Reset the account password"""
+        serializer = ResetPasswordSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
         password = serializer.validated_data["password"]
@@ -107,16 +138,6 @@ class AccountView(GenericViewSet,
             return Response(status=status.HTTP_200_OK)
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
-
-    
-    @reset.mapping.get
-    def check_token(self, request, reset_token, *args, **kwargs):
-        email = cache.get(reset_token)
-        if email:
-            return Response(status=status.HTTP_200_OK)
-        else:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-        
 
 class AccountTokenObtainPairView(TokenObtainPairView):
     serializer_class = AccountTokenObtainPairSerializer
