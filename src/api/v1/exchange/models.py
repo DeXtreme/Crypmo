@@ -1,9 +1,9 @@
-from turtle import position
+from operator import mod
 from uuid import uuid4
 from django.db import models
+from django.db.models.functions import TruncDate
+from django.db.models import F
 from v1.accounts.models import Account
-
-
 
 class Blockchain(models.Model):
     """ Blockchain model
@@ -158,3 +158,57 @@ class Trade(models.Model):
     price = models.FloatField(null=False, blank=False)
     updated_at = models.DateTimeField(auto_now=True)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        indexes = [models.Index("coin", TruncDate("created_at"),name="trade_date_idx"),
+                   models.Index("coin",F("created_at").desc(),name="trade_latest_idx")]
+
+
+
+class Candle(models.Model):
+    """Candlestick data
+    
+    Attributes
+    ----------
+    coin: Coin
+        The coin that was traded
+    interval: str
+        The interval
+    open: float
+        The open price
+    high: float
+        The high price
+    low: float
+        The low price
+    close: float
+        The close price
+    """
+
+    """
+    TODO: Add candle manager with custom update_or_create
+    insert into exchange_candle as ec  values(2,'h1',2,3,1,2.5,100,now(),now(),1)
+    on conflict (id) do update set op
+    en=ec.open, high=Greatest(ec.high,9), low=Least(ec.low,0), close=4;
+    TODO:Add unique constraint on time,interval,coin 
+    """
+
+    class Interval(models.TextChoices):
+        m1 = "m1"
+        h1 = "h1"
+        h4 = "h4"
+        d1 = "d1"
+    
+    coin = models.ForeignKey(Coin, on_delete=models.CASCADE, related_name="candles")
+    interval = models.CharField(choices=Interval.choices, max_length=3)
+    open = models.FloatField(null=False, blank=False)
+    high = models.FloatField(null=False, blank=False)
+    low = models.FloatField(null=False, blank=False)
+    close = models.FloatField(null=False, blank=False)
+    volume = models.FloatField(null=False, blank=False)
+    time = models.DateTimeField()
+    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+    class Meta:
+        indexes = [models.Index("coin","interval",F("time").desc(), name="candles_idx")]

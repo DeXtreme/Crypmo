@@ -1,9 +1,11 @@
 import React from "react";
 import { Provider } from "react-redux";
+import { BrowserRouter as Router} from "react-router-dom";
 import { waitFor, render, screen } from "@testing-library/react";
 import '@testing-library/jest-dom';
 import { setupServer } from "msw/node";
 import { rest } from "msw";
+import { APISocketProvider } from "../../apisocket";
 
 import {API_URL} from '../../constants';
 import { store } from "../../store";
@@ -29,8 +31,12 @@ afterAll(() => server.close())
 it("renders the pair data", async ()=>{
     render(
         <Provider store={store}>
-            <Alert />
-            <PairList />
+            <Router>
+                <Alert />
+                <APISocketProvider>
+                    <PairList />
+                </APISocketProvider>
+            </Router>
         </Provider>
     );
     const formatPrice = (value) => {
@@ -47,7 +53,7 @@ it("renders the pair data", async ()=>{
             { minimumFractionDigits : 2}) 
     }
     await waitFor(()=>{
-        expect(screen.getByText(pair.ticker)).toBeInTheDocument();
+        expect(screen.getByText(`${pair.ticker}`)).toBeInTheDocument();
         expect(screen.getByText(pair.blockchain)).toBeInTheDocument();
         expect(screen.getAllByText(formatPrice(pair.price))).not.toBeNull();
         expect(screen.getByText(formatVolume(pair.volume))).toBeInTheDocument();

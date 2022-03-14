@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework_simplejwt',
+    'channels',
     'v1.accounts',
     'v1.exchange'
 ]
@@ -72,6 +73,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'crypmo.wsgi.application'
+ASGI_APPLICATION = 'crypmo.asgi.application'
 
 # Django Rest Framework
 REST_FRAMEWORK = {
@@ -154,3 +156,13 @@ CELERY_BROKER_URL = 'redis://redis'
 
 # Mail
 EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend' if DEBUG else ""
+
+# Channels
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [('redis', 6379)],
+        },
+    },
+}

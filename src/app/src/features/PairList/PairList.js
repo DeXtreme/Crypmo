@@ -2,6 +2,8 @@
 import PropTypes from 'prop-types';
 import { useEffect, useState } from 'react';
 import { usePairs, useAPI } from '../../hooks';
+import { useTickers } from '../../apisocket';
+import { useNavigate } from 'react-router-dom';
 import {AiOutlineFileSearch} from 'react-icons/ai';
 
 import Pair from '../../components/Pair';
@@ -11,10 +13,13 @@ import * as cts from './constants';
 import { handleResponse } from './utils';
 
 function PairList({className}){
-    let {pairs, addPairs} = usePairs();
+    let {pairs, addPairs, updatePairs} = usePairs();
     let [loading, setLoading] = useState(true);
 
     let api = useAPI();
+    let tickers = useTickers();
+
+    let goTo = useNavigate();
 
     const loadPairs = async () => {
         setLoading(true);
@@ -47,6 +52,7 @@ function PairList({className}){
         let result = await api.get("exchange/", handleResponse);
         if(result){
             addPairs(result); 
+            tickers.subscribe("market", (data)=> updatePairs(data));
         }
         setLoading(false); 
     
@@ -79,7 +85,12 @@ function PairList({className}){
                         Price / 24h Change
                     </div>
                 </div>
-                {Object.keys(pairs).map(ticker => <Pair ticker={ticker} key={pairs[ticker].id} {...pairs[ticker]}/>)}
+                {Object.keys(pairs).map(ticker => {
+                    return (
+                        <Pair onClick={()=>goTo(`/exchange/${ticker}`)} ticker={ticker} 
+                        key={pairs[ticker].id} {...pairs[ticker]}/>
+                    )
+                })}
             </div>:
 
             (loading) ? 
@@ -99,7 +110,6 @@ function PairList({className}){
                     </div>
                 </div>
                 {Array(5).fill(null).map((_,i)=> <PairLoading key={i} />)}
-                
             </div>: 
             <div className='flex justify-center'>
                 <div className='text-center px-12 mt-20'>

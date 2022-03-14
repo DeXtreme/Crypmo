@@ -63,8 +63,8 @@ export function usePairs(){
         addPairs(pairs){
             dispatch(PairsSlice.actions.addPairs(pairs));
         },
-        updatePair(pair){
-            dispatch(PairsSlice.actions.updatePair(pair));
+        updatePairs(pairs){
+            dispatch(PairsSlice.actions.updatePairs(pairs));
         }
     }
 }

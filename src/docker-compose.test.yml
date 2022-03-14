@@ -48,7 +48,7 @@ services:
       - ./.env/db.test.env
     volumes:
       - ./api:/api
-    command: celery -A crypmo worker -l INFO
+    command: celery -A crypmo worker -B -l INFO
     depends_on:
       - redis
   

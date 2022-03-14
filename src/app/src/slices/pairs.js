@@ -12,6 +12,15 @@ const pairs = createSlice({
 
                 pairs[ticker] = {id,name,blockchain,price,volume,change};
             })
+
+            return {...state, ...pairs}
+        },
+        updatePairs(state,action){
+            let pairs = {}
+            action.payload.forEach((tick)=>{
+                let {id,ticker,price,volume,change} = tick;
+                pairs[ticker] = {...state?.[ticker], id,price,volume,change}
+            })
             return {...state, ...pairs}
         },
         updatePair(state,action){
