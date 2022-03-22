@@ -1,6 +1,4 @@
-from email import message
 import json
-from tkinter import W
 from asgiref.sync import async_to_sync
 from channels.generic.websocket import WebsocketConsumer
 
@@ -28,7 +26,7 @@ class ExchangeWebsocket(WebsocketConsumer):
                 self.groups.append("tickers")
             elif message["group"] == "kline":
                 coin_id = int(message["pair_id"])
-                interval = str(message["interval"])[:2]
+                interval = str(message["interval"])
 
                 group_name = f"{coin_id}_kline_{interval.lower()}"
                 async_to_sync(self.channel_layer.group_add)(
@@ -45,7 +43,7 @@ class ExchangeWebsocket(WebsocketConsumer):
                 self.groups.remove("tickers")
             elif message["group"] == "kline":
                 coin_id = int(message["pair_id"])
-                interval = str(message["interval"])[:2]
+                interval = str(message["interval"])
 
                 group_name = f"{coin_id}_kline_{interval.lower()}"
                 async_to_sync(self.channel_layer.group_discard)(
@@ -57,7 +55,8 @@ class ExchangeWebsocket(WebsocketConsumer):
 
     def broadcast(self, event):
         data = event["data"]
-        message = {"group":"tickers", "data": data} #set to group
+        group = event["group"]
+        message = {"group": group, "data": data}
         self.send(text_data=json.dumps(message))
 
 
