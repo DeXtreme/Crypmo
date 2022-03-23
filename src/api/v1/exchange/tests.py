@@ -1,3 +1,4 @@
+from time import time
 from unittest.mock import patch
 from django.test import TestCase
 from django.urls import reverse
@@ -21,15 +22,21 @@ class SerializersTestCase(APITestCase):
     @classmethod
     def setUpTestData(cls) -> None:
         user = User.objects.create_user("testuser", "testpass")
+
         cls.account = Account.objects.create(user=user)
+
         blockchain = Blockchain.objects.create(name="TestChain")
+
         cls.coin = Coin.objects.create(blockchain=blockchain, name="TestCoin",
                                        ticker="TC")
         cls.coin_balance = CoinBalance.objects.create(account=cls.account, coin=cls.coin)
+
         cls.fiat_balance = FiatBalance.objects.create(account=cls.account)
+
         cls.order = Order.objects.create(account=cls.account, coin=cls.coin, 
                                          type=Order.Types.LIMIT, position=Order.Positions.BUY,
                                          amount=100,price=1)
+
         cls.trade = Trade.objects.create(account=cls.account, coin=cls.coin, 
                                          position=Order.Positions.BUY, amount=100,price=1)
     
@@ -118,6 +125,11 @@ class ExchangeViewTestCase(APITestCase):
                                            coin=cls.coin, 
                                            position=Trade.Positions.BUY,
                                            amount=100,price=1.4)
+        
+        m1_time = timezone.now().replace(second=0,microsecond=0)        
+        h1_time = m1_time.replace(minute=0)     
+        d1_time = h1_time.replace(hour=0)
+        d1_time2= d1_time.replace(day=d1_time.day-1)
 
         cls.candle_1 = Candle.objects.create(coin=cls.coin,
                                              interval=Candle.Interval.m1,
@@ -125,6 +137,7 @@ class ExchangeViewTestCase(APITestCase):
                                              high=2,
                                              low=0.4,
                                              close=1.5,
+                                             time=m1_time,
                                              volume=100)
 
         cls.candle_2 = Candle.objects.create(coin=cls.coin,
@@ -133,6 +146,7 @@ class ExchangeViewTestCase(APITestCase):
                                              high=2,
                                              low=0.4,
                                              close=1.5,
+                                             time=h1_time,
                                              volume=100)
         
         cls.candle_3 = Candle.objects.create(coin=cls.coin,
@@ -141,6 +155,7 @@ class ExchangeViewTestCase(APITestCase):
                                              high=2,
                                              low=0.4,
                                              close=1.5,
+                                             time=d1_time2,
                                              volume=100)
 
         cls.candle_4 = Candle.objects.create(coin=cls.coin,
@@ -149,6 +164,7 @@ class ExchangeViewTestCase(APITestCase):
                                              high=4,
                                              low=0.2,
                                              close=1.7,
+                                             time=d1_time,
                                              volume=200)
 
 
@@ -200,7 +216,7 @@ class ExchangeViewTestCase(APITestCase):
         self.assertEqual(data["candles"][0]["low"],self.candle_2.low)
         self.assertEqual(data["candles"][0]["close"],self.candle_2.close)
         self.assertEqual(data["candles"][0]["volume"],self.candle_2.volume)
-        self.assertEqual(dateparse.parse_datetime(data["candles"][0]["time"]),self.candle_2.created_at)
+        self.assertEqual(data["candles"][0]["time"],self.candle_2.time.timestamp())
 
     
     def test_candles_m1(self):
@@ -223,7 +239,7 @@ class ExchangeViewTestCase(APITestCase):
         self.assertEqual(data["candles"][0]["low"],self.candle_1.low)
         self.assertEqual(data["candles"][0]["close"],self.candle_1.close)
         self.assertEqual(data["candles"][0]["volume"],self.candle_1.volume)
-        self.assertEqual(dateparse.parse_datetime(data["candles"][0]["time"]),self.candle_1.created_at)
+        self.assertEqual(data["candles"][0]["time"],self.candle_1.time.timestamp())
     
     def test_candles_d1(self):
         url = reverse("exchange:exchange-candles",args=["TC"])
@@ -245,7 +261,7 @@ class ExchangeViewTestCase(APITestCase):
         self.assertEqual(data["candles"][0]["low"],self.candle_4.low)
         self.assertEqual(data["candles"][0]["close"],self.candle_4.close)
         self.assertEqual(data["candles"][0]["volume"],self.candle_4.volume)
-        self.assertEqual(dateparse.parse_datetime(data["candles"][0]["time"]),self.candle_4.created_at)
+        self.assertEqual(data["candles"][0]["time"],self.candle_4.time.timestamp())
 
     
     def test_candles_d1_to(self):
@@ -267,7 +283,7 @@ class ExchangeViewTestCase(APITestCase):
         self.assertEqual(data["candles"][0]["low"],self.candle_3.low)
         self.assertEqual(data["candles"][0]["close"],self.candle_3.close)
         self.assertEqual(data["candles"][0]["volume"],self.candle_3.volume)
-        self.assertEqual(dateparse.parse_datetime(data["candles"][0]["time"]),self.candle_3.created_at)
+        self.assertEqual(data["candles"][0]["time"],self.candle_3.time.timestamp())
         
         
 class ExchangeWebsocketTestCase(TestCase):

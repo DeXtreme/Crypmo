@@ -59,6 +59,10 @@ class TickerSerializer(serializers.Serializer):
         return obj.volume_today if obj.volume_today else 0
 
 class CandleSerializer(serializers.ModelSerializer):
+    time = serializers.SerializerMethodField()
+
+    def get_time(self,obj):
+        return obj.time.timestamp()
     class Meta:
         model = Candle
         fields = ["id","open","high","low","close","volume","time"]

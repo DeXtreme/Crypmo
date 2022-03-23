@@ -1,7 +1,3 @@
-from datetime import timedelta
-from tokenize import group
-import pandas as pd
-from numpy import nan
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 from django.utils import timezone
@@ -18,21 +14,25 @@ def setupTicker(sender,**kwargs):
 @app.task
 def ticker():
     trades_today = Trade.objects.filter(coin=OuterRef("id"),
-                                            created_at__date=timezone.now())
+                                        created_at__date=timezone.now())
 
     first_price_today = Subquery(trades_today.values("price")[:1]) 
 
-    volume_today = Subquery(trades_today.values("coin")\
-                                    .annotate(volume=Sum("amount"))\
-                                    .values("volume"))
+    volume_today = Subquery(
+                        trades_today.values("coin")\
+                            .annotate(volume=Sum("amount"))\
+                            .values("volume")
+                    )
 
-    last_price = Subquery(Trade.objects.filter(coin=OuterRef("id"))\
-                                        .order_by("-created_at")
-                                        .values("price")[:1])
+    last_price = Subquery(
+                    Trade.objects.filter(coin=OuterRef("id"))\
+                        .order_by("-created_at")
+                        .values("price")[:1]
+                )
     
     pairs = Coin.objects.annotate(last_price=last_price,
-                                  first_price_today=first_price_today,
-                                  volume_today=volume_today)
+                first_price_today=first_price_today,
+                volume_today=volume_today)
     
     serializer = TickerSerializer(pairs, many=True)
     data = serializer.data
