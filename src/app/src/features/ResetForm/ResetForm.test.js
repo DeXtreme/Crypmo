@@ -16,10 +16,10 @@ import Alert from "../../components/Alert";
 import ResetForm from '.';
 
 let server = setupServer(
-    rest.post(`${API_URL}/account/reset/:token`, (req, res, ctx)=>{
+    rest.post(`${API_URL}/account/reset/:token/`, (req, res, ctx)=>{
         return res(ctx.status(200));
     }),
-    rest.get(`${API_URL}/account/reset/:token`, (req, res, ctx)=>{
+    rest.get(`${API_URL}/account/reset/:token/`, (req, res, ctx)=>{
         return res(ctx.status(200));
     }),
 )
@@ -49,7 +49,7 @@ it('should render the password form after clicking the link',async ()=>{
 
 it('should render an alert and redirect if token has expired',async ()=>{
     server.use(
-        rest.get(`${API_URL}/account/reset/:token`, (req, res, ctx)=>{
+        rest.get(`${API_URL}/account/reset/:token/`, (req, res, ctx)=>{
             return res(ctx.status(400));
         }),
     )
@@ -90,6 +90,11 @@ it('should redirect and render an alert after entering a valid password',async (
             </Router>
         </Provider>
     )
+
+    await waitFor(()=>{
+        expect(screen.getByPlaceholderText(/Password/i)).toBeInTheDocument();
+        expect(screen.getByText(/Change password/i)).toBeInTheDocument();
+    })
 
     userEvent.type(screen.getByPlaceholderText(/Password/i),"Testuser1");
     userEvent.click(screen.getByText(/Change password/i))

@@ -34,7 +34,7 @@ function LogInForm({className}){
             return errors;
         },
         onSubmit: async (values, {setSubmitting, setErrors}) =>{
-            let result = await api.post("account/token",
+            let result = await api.post("account/token/",
                 {username:values.username,
                 password: values.password},
                 handleResponse);

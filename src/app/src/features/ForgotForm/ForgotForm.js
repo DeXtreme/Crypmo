@@ -33,7 +33,7 @@ function ForgotForm({className}){
         },
         onSubmit(values, {setSubmitting}){
             let {email} = values;
-            let result = api.post("account/forgot",{email},handleResponse);
+            let result = api.post("account/forgot/",{email},handleResponse);
             if(result){
                 setSuccess(true);
             }
