@@ -1,3 +1,4 @@
+from datetime import timedelta
 from time import time
 from unittest.mock import patch
 from django.test import TestCase
@@ -129,7 +130,7 @@ class ExchangeViewTestCase(APITestCase):
         m1_time = timezone.now().replace(second=0,microsecond=0)        
         h1_time = m1_time.replace(minute=0)     
         d1_time = h1_time.replace(hour=0)
-        d1_time2= d1_time.replace(day=d1_time.day-1)
+        d1_time2= d1_time - timedelta(days=1)
 
         cls.candle_1 = Candle.objects.create(coin=cls.coin,
                                              interval=Candle.Interval.m1,
@@ -179,9 +180,9 @@ class ExchangeViewTestCase(APITestCase):
         self.assertEqual(data[0]["name"], self.coin.name)
         self.assertEqual(data[0]["ticker"], self.coin.ticker)
         self.assertEqual(data[0]["blockchain"], self.coin.blockchain.name)
-        self.assertEqual(data[0]["price"], self.trade_2.price)
-        self.assertEqual(data[0]["volume"], self.trade_1.amount + self.trade_2.amount)
-        self.assertEqual(data[0]["change"], ((self.trade_2.price-self.trade_1.price)/self.trade_1.price)*100)
+        self.assertEqual(data[0]["price"], self.candle_4.close)
+        self.assertEqual(data[0]["volume"], self.candle_4.volume)
+        self.assertEqual(data[0]["change"], ((self.candle_4.close-self.candle_3.close)/self.candle_3.close)*100)
 
     
     def test_retrieve_coin(self):
@@ -193,9 +194,10 @@ class ExchangeViewTestCase(APITestCase):
         self.assertEqual(data["name"], self.coin.name)
         self.assertEqual(data["ticker"], self.coin.ticker)
         self.assertEqual(data["blockchain"], self.coin.blockchain.name)
-        self.assertEqual(data["price"], self.trade_2.price)
-        self.assertEqual(data["volume"], self.trade_1.amount + self.trade_2.amount)
-        self.assertEqual(data["change"], ((self.trade_2.price-self.trade_1.price)/self.trade_1.price)*100)
+        self.assertEqual(data["price"], self.candle_4.close)
+        self.assertEqual(data["volume"], self.candle_4.volume)
+        self.assertEqual(data["change"], ((self.candle_4.close-self.candle_3.close)/self.candle_3.close)*100)
+
 
     def test_candles_default(self):
         url = reverse("exchange:exchange-candles",args=["TC"])
@@ -299,20 +301,21 @@ class ExchangeWebsocketTestCase(TestCase):
         )
 
         class TestPair:
-            def __init__(self, id, ticker, last_price, first_price_today, volume_today):
+            def __init__(self, id, ticker, close_today, previous_close, close, volume_today):
                 self.id = id
                 self.ticker = ticker
-                self.last_price = last_price
-                self.first_price_today = first_price_today
+                self.close_today = close_today
+                self.previous_close = previous_close
+                self.close = close
                 self.volume_today = volume_today
 
             def calculate_change(self):
-                delta = self.last_price-self.first_price_today
-                change = delta/self.first_price_today
+                delta = self.close_today-self.previous_close
+                change = delta/self.previous_close
                 change *= 100
                 return change
 
-        test_pair = TestPair(1,"ADA", 1.2, 1.4, 100)
+        test_pair = TestPair(1,"ADA", 1.2, 1.4, 2.2,100)
         annotate.return_value= [test_pair]
 
         await sync_to_async(ticker)()
@@ -324,7 +327,7 @@ class ExchangeWebsocketTestCase(TestCase):
         self.assertEqual(len(response["data"]), 1)
         self.assertEqual(response["data"][0]["id"], test_pair.id)
         self.assertEqual(response["data"][0]["ticker"], test_pair.ticker)
-        self.assertEqual(response["data"][0]["price"], test_pair.last_price)
+        self.assertEqual(response["data"][0]["price"], test_pair.close)
         self.assertEqual(response["data"][0]["volume"], test_pair.volume_today)
         self.assertEqual(response["data"][0]["change"], test_pair.calculate_change())
         

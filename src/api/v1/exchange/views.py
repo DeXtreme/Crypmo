@@ -1,3 +1,5 @@
+from datetime import timedelta
+from time import time
 from django.utils import timezone
 from django.db.models import OuterRef, Subquery, Sum
 from rest_framework.viewsets import GenericViewSet
@@ -31,25 +33,32 @@ class ExchangeView(GenericViewSet):
         QuerySet
             Queryset of pairs with the data
         """
-        trades_today = Trade.objects.filter(coin=OuterRef("id"),
-                            created_at__date=timezone.now())
 
-        first_price_today = Subquery(trades_today.values("price")[:1]) 
+        today = timezone.now().replace(hour=0,minute=0,second=0,microsecond=0)
 
-        volume_today = Subquery(
-                            trades_today.values("coin")\
-                                .annotate(volume=Sum("amount"))\
-                                .values("volume")
+        candle_today = Candle.objects.filter(coin=OuterRef("id"),
+                            interval=Candle.Interval.d1,
+                            time=today)
+
+        close_today = Subquery(candle_today.values("close")[:1]) 
+        volume_today = Subquery(candle_today.values("volume")[:1])
+
+        previous_close = Subquery(
+                            Candle.objects.filter(coin=OuterRef("id"),
+                                interval=Candle.Interval.d1,
+                                time__lt=today)\
+                                .order_by('-time')\
+                                .values("close")[:1]
                         )
-
-        last_price = Subquery(
-                        Trade.objects.filter(coin=OuterRef("id"))\
-                            .order_by("-created_at")
-                            .values("price")[:1]
-                    )
         
-        pairs = queryset.annotate(last_price=last_price,
-                    first_price_today=first_price_today,
+        close = Candle.objects.filter(coin=OuterRef("id"),
+                    interval=Candle.Interval.d1)\
+                    .order_by('-time')\
+                    .values("close")[:1]
+        
+        pairs = queryset.annotate(close_today=close_today,
+                    previous_close=previous_close,
+                    close=close,
                     volume_today=volume_today)
         
         return pairs

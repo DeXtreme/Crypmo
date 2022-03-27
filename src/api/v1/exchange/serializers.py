@@ -28,13 +28,12 @@ class PairSerializer(serializers.Serializer):
     change = serializers.SerializerMethodField()
 
     def get_change(self, obj):
-        if(obj.last_price and obj.first_price_today):
-            return ((obj.last_price-obj.first_price_today)/obj.first_price_today) * 100
-
+        if(obj.close_today and obj.previous_close):
+            return ((obj.close_today-obj.previous_close)/obj.previous_close) * 100
         return 0
     
     def get_price(self, obj):
-        return obj.last_price if obj.last_price else 0
+        return obj.close if obj.close else 0
 
     def get_volume(self, obj):
         return obj.volume_today if obj.volume_today else 0
@@ -47,13 +46,12 @@ class TickerSerializer(serializers.Serializer):
     change = serializers.SerializerMethodField()
 
     def get_change(self, obj):
-        if(obj.last_price and obj.first_price_today):
-            return ((obj.last_price-obj.first_price_today)/obj.first_price_today) * 100
-
+        if(obj.close_today and obj.previous_close):
+            return ((obj.close_today-obj.previous_close)/obj.previous_close) * 100
         return 0
     
     def get_price(self, obj):
-        return obj.last_price if obj.last_price else 0
+        return obj.close if obj.close else 0
 
     def get_volume(self, obj):
         return obj.volume_today if obj.volume_today else 0
