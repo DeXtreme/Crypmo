@@ -17,7 +17,7 @@ import VerifyAccount from ".";
 
 
 const server = setupServer(
-    rest.get(`${API_URL}/account/verify/*`, (req, res, ctx)=>{
+    rest.get(`${API_URL}/account/verify/:token/`, (req, res, ctx)=>{
         return res(ctx.status(201));
     })
 )
@@ -46,7 +46,7 @@ it("should render a success alert if token is valid", async () => {
 
 it("should render a fail alert if token is invalid", async () => {
     server.use(
-        rest.get(`${API_URL}/account/verify/*`, (req, res, ctx)=>{
+        rest.get(`${API_URL}/account/verify/:token/`, (req, res, ctx)=>{
             return res(ctx.status(500));
         })
     )

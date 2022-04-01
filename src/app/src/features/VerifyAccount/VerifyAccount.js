@@ -15,7 +15,7 @@ function VerifyAccount({verify_id}){
     useEffect(()=>{
         let mounted = true;
         (async ()=>{
-            let result = await api.get(`account/verify/${verify_id}`, handleResponse);   
+            let result = await api.get(`account/verify/${verify_id}/`, handleResponse);   
             if(result){
                 showSuccessAlert(cts.SUCCESS_HEADER,
                     cts.SUCCESS_MESSAGE);

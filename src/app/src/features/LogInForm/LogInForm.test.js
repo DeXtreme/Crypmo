@@ -28,7 +28,7 @@ let test_access = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkw
 let test_refresh = "test refresh";
 
 let server = setupServer(
-    rest.post(`${API_URL}/account/token`, (req, res, ctx)=>{
+    rest.post(`${API_URL}/account/token/`, (req, res, ctx)=>{
         return res(ctx.status(200),
             ctx.json({access: test_access, refresh: test_refresh}))
     })

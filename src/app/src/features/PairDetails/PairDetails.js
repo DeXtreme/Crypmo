@@ -85,26 +85,22 @@ function PairDetails({className, ticker}){
 
     useEffect(()=>{
         if(pair){
-            console.log("loading candles by effect")
             loadPairCandles();
         }
     },[pair])
 
     const loadPair = async()=>{
-        console.log("loading pair")
         let result = await api.get(`exchange/${ticker}/`,handleResponse);
         if(result){
             dispatch(slice.actions.setPair(result))
-            console.log("dispatch pair")
         }
     }
 
     const loadPairCandles = async()=>{
-        console.log("loading candles", end)
         if(!end){
             let to = "";
             if(data.length>0){
-                to = data[data.length-1].id;
+                to = data[0].id;
             }
             let result = await api.get(`exchange/${pair.ticker}/candles/?interval=${interval}&to=${to}`,
                                     handleResponse);
@@ -116,7 +112,6 @@ function PairDetails({className, ticker}){
     }
 
     const changeInterval = async (newInterval)=>{ 
-        console.log("changing interval")
         if(newInterval !== interval){
             dispatch(slice.actions.setInterval(newInterval));
             unsubscribe();
@@ -139,7 +134,7 @@ function PairDetails({className, ticker}){
         <div className='grid grid-cols-6 grid-rows-2'>
             <div className='col-start-2 col-span-4 h-80 flex flex-col'>
                 {/*pair info*/}
-                <Chart isCandles={true} data={data} isCandles={isCandles}
+                <Chart data={data} isCandles={isCandles}
                  loadPrevious={loadPairCandles} className="flex-1"/>
                 <div className='bg-chart flex flex-row gap-3 text-xs 
                 px-10 pt-2 pb-4 justify-end rounded-b-xl text-gray-400

@@ -1,13 +1,9 @@
-from datetime import timedelta
-from tokenize import group
-import pandas as pd
-from numpy import nan
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 from django.utils import timezone
 from django.db.models import OuterRef, Subquery, Sum
 from crypmo.celery import app
-from .models import Coin,Trade
+from .models import Coin,Trade, Candle
 from .serializers import TickerSerializer
 
 
@@ -17,22 +13,32 @@ def setupTicker(sender,**kwargs):
 
 @app.task
 def ticker():
-    trades_today = Trade.objects.filter(coin=OuterRef("id"),
-                                            created_at__date=timezone.now())
+    today = timezone.now().replace(hour=0,minute=0,second=0,microsecond=0)
 
-    first_price_today = Subquery(trades_today.values("price")[:1]) 
+    candle_today = Candle.objects.filter(coin=OuterRef("id"),
+                        interval=Candle.Interval.d1,
+                        time=today)
 
-    volume_today = Subquery(trades_today.values("coin")\
-                                    .annotate(volume=Sum("amount"))\
-                                    .values("volume"))
+    close_today = Subquery(candle_today.values("close")[:1]) 
+    volume_today = Subquery(candle_today.values("volume")[:1])
 
-    last_price = Subquery(Trade.objects.filter(coin=OuterRef("id"))\
-                                        .order_by("-created_at")
-                                        .values("price")[:1])
+    previous_close = Subquery(
+                        Candle.objects.filter(coin=OuterRef("id"),
+                            interval=Candle.Interval.d1,
+                            time__lt=today)\
+                            .order_by('-time')\
+                            .values("close")[:1]
+                    )
     
-    pairs = Coin.objects.annotate(last_price=last_price,
-                                  first_price_today=first_price_today,
-                                  volume_today=volume_today)
+    close = Candle.objects.filter(coin=OuterRef("id"),
+                interval=Candle.Interval.d1)\
+                .order_by('-time')\
+                .values("close")[:1]
+        
+    pairs = Coin.objects.annotate(close_today=close_today,
+                previous_close=previous_close,
+                close=close,
+                volume_today=volume_today)
     
     serializer = TickerSerializer(pairs, many=True)
     data = serializer.data

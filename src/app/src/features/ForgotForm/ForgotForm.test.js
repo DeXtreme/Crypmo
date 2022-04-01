@@ -14,7 +14,7 @@ import * as cts from './constants';
 import ForgotForm from '.';
 
 let server = setupServer(
-    rest.post(`${API_URL}/account/forgot`, (req, res, ctx)=>{
+    rest.post(`${API_URL}/account/forgot/`, (req, res, ctx)=>{
         return res(ctx.status(200));
     }),
 )

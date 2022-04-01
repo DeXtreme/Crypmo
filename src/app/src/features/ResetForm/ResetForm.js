@@ -8,11 +8,13 @@ import { useAPI } from '../../hooks';
 import { FaLock, FaCheckCircle, FaEyeSlash, FaEye } from 'react-icons/fa';
 
 import * as cts from './constants';
+import Loading from '../../components/loading/Loading';
 import {handleResponse, checkResponse} from './utils';
 
 function ResetForm({token, className}){
 
     let {showSuccessAlert, showFailAlert} = useAlert();
+    let [loading, setLoading] = useState(true);
     let goTo = useNavigate();
     
     const [isPasswordVisible, setPasswordVisible] = useState(false);
@@ -26,16 +28,17 @@ function ResetForm({token, className}){
     const api = useAPI();
 
     useEffect(()=>{
+        let mounted = true;
         (async ()=> {
-            // show loading animation as it checks
-            let result = await api.get(`account/reset/${token}`, checkResponse);
-            if(result){
-                // stop animation and show form
-            }else{
+            let result = await api.get(`account/reset/${token}/`, checkResponse);
+            if(!result){
                 showFailAlert(cts.LINK_EXPIRED_HEADER, cts.LINK_EXPIRED_MESSAGE);
                 goTo("/forgot");
             }
-        })()
+            mounted && setLoading(false);
+        })();
+
+        return ()=> mounted = false;
     },[api, goTo, showFailAlert, token])
 
     const formik = useFormik({
@@ -81,7 +84,7 @@ function ResetForm({token, className}){
         },
 
         onSubmit: async ({password}, {setFieldError, setSubmitting}) => {
-            let result = await api.post(`account/reset/${token}`,
+            let result = await api.post(`account/reset/${token}/`,
                                         {password},
                                         handleResponse); 
             if(result.success){
@@ -97,6 +100,13 @@ function ResetForm({token, className}){
     const handleVisible = () => setPasswordVisible(prev => !prev)
 
     return(
+        <>
+        {loading ? <>
+            <div className='w-full h-full fixed left-0 
+            top-0 flex items-center justify-center z-10'>
+                <Loading />
+            </div>
+        </> :
         <div className={className}>
             <form onSubmit={formik.handleSubmit}>
                 <h1 className='font-medium text-4xl mb-2 text-accent'>Reset password</h1>
@@ -154,7 +164,8 @@ function ResetForm({token, className}){
                 </button>
                 </div>
             </form>
-        </div>
+        </div>}
+        </>
     )
 }
 

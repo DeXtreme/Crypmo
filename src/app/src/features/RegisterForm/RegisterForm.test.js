@@ -14,7 +14,7 @@ import RegisterForm from ".";
 
 
 const server = setupServer(
-    rest.post(`${API_URL}/account`, (req, res, ctx) =>{
+    rest.post(`${API_URL}/account/`, (req, res, ctx) =>{
         return res(ctx.status(200));
     })
 )

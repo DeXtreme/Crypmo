@@ -3,7 +3,7 @@ export function checkResponse(response){
 }
 
 export async function handleResponse(response){
-   
+    console.log(response)
     let result = {
         success: false,
         errors: null,

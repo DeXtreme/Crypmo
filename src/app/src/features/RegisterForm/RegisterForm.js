@@ -80,7 +80,7 @@ function RegisterForm({className}){
         },
 
         onSubmit: async (values, {setFieldError, setSubmitting}) => {
-            let result = await api.post("account",
+            let result = await api.post("account/",
                                 {email: values.email,password: values.password},
                                 handleResponse);
             

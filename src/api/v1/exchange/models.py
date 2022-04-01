@@ -1,8 +1,9 @@
 from operator import mod
 from uuid import uuid4
-from django.db import models
+from django.db import models, connection
 from django.db.models.functions import TruncDate
 from django.db.models import F
+from django.utils import timezone
 from v1.accounts.models import Account
 
 class Blockchain(models.Model):
@@ -183,20 +184,13 @@ class Candle(models.Model):
     close: float
         The close price
     """
-
-    """
-    TODO: Add candle manager with custom update_or_create
-    insert into exchange_candle as ec  values(2,'h1',2,3,1,2.5,100,now(),now(),1)
-    on conflict (id) do update set op
-    en=ec.open, high=Greatest(ec.high,9), low=Least(ec.low,0), close=4;
-    TODO:Add unique constraint on time,interval,coin 
-    """
-
+    
     class Interval(models.TextChoices):
         m1 = "m1"
         h1 = "h1"
         h4 = "h4"
         d1 = "d1"
+    
     
     coin = models.ForeignKey(Coin, on_delete=models.CASCADE, related_name="candles")
     interval = models.CharField(choices=Interval.choices, max_length=3)
@@ -208,7 +202,33 @@ class Candle(models.Model):
     time = models.DateTimeField()
     updated_at = models.DateTimeField(auto_now=True)
     created_at = models.DateTimeField(auto_now_add=True)
-
-
     class Meta:
         indexes = [models.Index("coin","interval",F("time").desc(), name="candles_idx")]
+    
+
+    @staticmethod
+    def add(coin,price,volume):
+        with connection.cursor() as cursor:
+            times = {}
+
+            m1_time = timezone.now().replace(second=0,microsecond=0)        
+            h1_time = m1_time.replace(minute=0)     
+            h4_time = h1_time.replace(hour=(4*(h1_time.hour//4)))      
+            d1_time = h4_time.replace(hour=0)
+            
+            times["m1"] = m1_time
+            times["h1"] = h1_time
+            times["h4"] = h4_time
+            times["d1"] = d1_time
+
+            query=""
+            for (interval,time) in times.items():
+                query += f"INSERT INTO exchange_candle AS ec(coin_id,interval,open,high,low,close,\
+                        volume,time,updated_at,created_at) \
+                        VALUES({coin.id},'{interval}',{price},{price},{price},{price},{volume},'{time}',now(),now())\
+                        ON CONFLICT (coin_id,interval,time) DO UPDATE SET open=ec.open, high=Greatest(ec.high,{price}),\
+                        low=Least(ec.low,{price}), close={price}, volume=ec.volume + {volume};"
+            
+            cursor.execute(query)
+    
+

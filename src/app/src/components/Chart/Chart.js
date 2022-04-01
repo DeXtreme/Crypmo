@@ -78,8 +78,6 @@ function Chart({className,isCandles,data,loadPrevious}){
             }
         })
 
-        chart.timeScale().fitContent();
-
         const resizeHandler = ()=>{
             let width = chartRef.current.clientWidth
             let height = chartRef.current.clientHeight
@@ -93,51 +91,37 @@ function Chart({className,isCandles,data,loadPrevious}){
         setCandleSeries(candleSeries);
         setVolumeSeries(volumeSeries);
 
-        console.log("chart start")
     },[])
 
    useEffect(()=>{
-        console.log("data", data)
-
         if(chart){
-            console.log("unsub");
             chart.timeScale().unsubscribeVisibleLogicalRangeChange(rangeHandler);
-
+            
             if(isCandles){
                 areaSeries.setData([]);
-                let candles = data.map(candle=>{ 
-                    return {open: candle.open,high:candle.high,low:candle.low, close:candle.close,time:Date.parse(candle.time)/1000}
-                })
-                candles.reverse();
+                let candles = [...data]
                 candleSeries.setData(candles);
             }else{
                 candleSeries.setData([]);
                 let values = data.map(candle=>{ 
-                    return {time:Date.parse(candle.time)/1000, value:candle.close}
+                    return {time:candle.time, value:candle.close}
                 })
-                values.reverse();
                 areaSeries.setData(values);
             }
 
             let volumes = data.map(candle=>{
-                return {time:Date.parse(candle.time)/1000, value:candle.volume,
+                return {time:candle.time, value:candle.volume,
                     color: (candle.close>candle.open ? 'rgba(0, 150, 136, 0.8)' : 'rgba(255,82,82, 0.8)')}
             })
-            volumes.reverse();
             volumeSeries.setData(volumes);
 
-            console.log("subbed")
             chart.timeScale().subscribeVisibleLogicalRangeChange(rangeHandler);
-            //chart.timeScale().fitContent();
         }
     },[data, isCandles])
 
     const rangeHandler = (range)=>{
-        if(range && range.to === 1 && data.length>2 && chart){
-
-            console.log("unsub");
+        if(range && range.to === 1 && data.length>10 && chart){
             chart.timeScale().unsubscribeVisibleLogicalRangeChange(rangeHandler);
-            console.log("loading prev")
             loadPrevious();
         }
     }
