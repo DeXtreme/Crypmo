@@ -1,0 +1,29 @@
+upstream app {
+    server app:3000;
+}
+
+upstream api {
+    server api:8000;
+}
+
+server {
+    listen 80;
+
+    location ~* /api/(.+/ws/.*)$ {
+        proxy_pass http://api/$1;
+
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+    }
+
+    location /api/ {
+        proxy_pass http://api/;
+    }
+
+    location / {
+        proxy_pass http://app;
+    }
+
+}
